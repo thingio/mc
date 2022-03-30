@@ -141,10 +141,10 @@ func (w *Watcher) Wait() {
 }
 
 // Join the watcher with client
-func (w *Watcher) Join(ctx context.Context, client Client, recursive bool) *probe.Error {
+func (w *Watcher) Join(ctx context.Context, client Client, recursive bool, watchEvents []string) *probe.Error {
 	wo, err := client.Watch(ctx, WatchOptions{
 		Recursive: recursive,
-		Events:    []string{"put", "delete"},
+		Events:    watchEvents,
 	})
 	if err != nil {
 		return err

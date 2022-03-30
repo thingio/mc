@@ -109,6 +109,10 @@ var (
 			Name:  "attr",
 			Usage: "add custom metadata for all objects",
 		},
+		cli.BoolFlag{
+			Name:  "ignore-delete",
+			Usage: "watch and synchronize changes, igonre event delete",
+		},
 	}
 )
 
@@ -534,7 +538,12 @@ func (mj *mirrorJob) watchMirror(ctx context.Context, stopParallel func()) {
 }
 
 func (mj *mirrorJob) watchURL(ctx context.Context, sourceClient Client) *probe.Error {
-	return mj.watcher.Join(ctx, sourceClient, true)
+	var watchEvents []string
+	watchEvents = []string{"put"}
+	if !mj.opts.isIgnoreDelete {
+		watchEvents = append(watchEvents, "delete")
+	}
+	return mj.watcher.Join(ctx, sourceClient, true, watchEvents)
 }
 
 // Fetch urls that need to be mirrored
@@ -759,8 +768,9 @@ func runMirror(ctx context.Context, cancelMirror context.CancelFunc, srcURL, dst
 		isFake:           cli.Bool("fake"),
 		isRemove:         cli.Bool("remove"),
 		isOverwrite:      isOverwrite,
-		isWatch:          cli.Bool("watch") || cli.Bool("multi-master") || cli.Bool("active-active"),
+		isWatch:          cli.Bool("watch") || cli.Bool("multi-master") || cli.Bool("active-active") || cli.Bool("ignore-delete"),
 		isMetadata:       cli.Bool("a") || cli.Bool("multi-master") || cli.Bool("active-active") || len(userMetadata) > 0,
+		isIgnoreDelete:   cli.Bool("ignore-delete"),
 		md5:              cli.Bool("md5"),
 		disableMultipart: cli.Bool("disable-multipart"),
 		excludeOptions:   cli.StringSlice("exclude"),

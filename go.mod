@@ -1,4 +1,4 @@
-module github.com/minio/mc
+module gitee/CoJinwei/mc
 
 go 1.13
 
