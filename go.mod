@@ -1,4 +1,4 @@
-module gitee/CoJinwei/mc
+module gitee/CoJinwei/mc-go1.13
 
 go 1.13
 
