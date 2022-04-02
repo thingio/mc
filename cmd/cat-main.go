@@ -134,13 +134,13 @@ func checkCatSyntax(ctx *cli.Context) {
 	}
 	for _, arg := range args {
 		if strings.HasPrefix(arg, "-") && len(arg) > 1 {
-			fatalIf(probe.NewError(errors.New("")), fmt.Sprintf("Unknown flag `%s` passed.", arg))
+			FatalIf(probe.NewError(errors.New("")), fmt.Sprintf("Unknown flag `%s` passed.", arg))
 		}
 	}
 }
 
 // catURL displays contents of a URL to stdout.
-func catURL(ctx context.Context, sourceURL string, encKeyDB map[string][]prefixSSEPair) *probe.Error {
+func catURL(ctx context.Context, sourceURL string, encKeyDB map[string][]PrefixSSEPair) *probe.Error {
 	var reader io.ReadCloser
 	size := int64(-1)
 	switch sourceURL {
@@ -212,12 +212,12 @@ func catOut(r io.Reader, size int64) *probe.Error {
 
 // mainCat is the main entry point for cat command.
 func mainCat(cliCtx *cli.Context) error {
-	ctx, cancelCat := context.WithCancel(globalContext)
+	ctx, cancelCat := context.WithCancel(GlobalContext)
 	defer cancelCat()
 
 	// Parse encryption keys per command.
 	encKeyDB, err := getEncKeys(cliCtx)
-	fatalIf(err, "Unable to parse encryption keys.")
+	FatalIf(err, "Unable to parse encryption keys.")
 
 	// check 'cat' cli arguments.
 	checkCatSyntax(cliCtx)
@@ -230,7 +230,7 @@ func mainCat(cliCtx *cli.Context) error {
 
 	// handle std input data.
 	if stdinMode {
-		fatalIf(catOut(os.Stdin, -1).Trace(), "Unable to read from standard input.")
+		FatalIf(catOut(os.Stdin, -1).Trace(), "Unable to read from standard input.")
 		return nil
 	}
 
@@ -248,7 +248,7 @@ func mainCat(cliCtx *cli.Context) error {
 
 	// Convert arguments to URLs: expand alias, fix format.
 	for _, url := range args {
-		fatalIf(catURL(ctx, url, encKeyDB).Trace(url), "Unable to read from `"+url+"`.")
+		FatalIf(catURL(ctx, url, encKeyDB).Trace(url), "Unable to read from `"+url+"`.")
 	}
 
 	return nil

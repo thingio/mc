@@ -72,7 +72,7 @@ type tagListMessage struct {
 
 func (t tagListMessage) JSON() string {
 	tagJSONbytes, err := json.MarshalIndent(t, "", "  ")
-	fatalIf(probe.NewError(err), "Unable to marshal into JSON for "+t.URL)
+	FatalIf(probe.NewError(err), "Unable to marshal into JSON for "+t.URL)
 	return string(tagJSONbytes)
 }
 
@@ -102,7 +102,7 @@ func (t tagListMessage) String() string {
 }
 
 func mainListTag(cliCtx *cli.Context) error {
-	ctx, cancelListTag := context.WithCancel(globalContext)
+	ctx, cancelListTag := context.WithCancel(GlobalContext)
 	defer cancelListTag()
 
 	if len(cliCtx.Args()) != 1 {
@@ -110,15 +110,15 @@ func mainListTag(cliCtx *cli.Context) error {
 	}
 
 	targetURL := cliCtx.Args().Get(0)
-	clnt, err := newClient(targetURL)
-	fatalIf(err, "Unable to initialize target "+targetURL)
+	clnt, err := NewClient(targetURL)
+	FatalIf(err, "Unable to initialize target "+targetURL)
 
 	tags, err := clnt.GetTags(ctx)
-	fatalIf(err, "Unable to fetch tags for "+targetURL)
+	FatalIf(err, "Unable to fetch tags for "+targetURL)
 
 	tagMap := tags.ToMap()
 	if len(tagMap) == 0 {
-		fatalIf(probe.NewError(errors.New("check 'mc tag set --help' on how to set tags")), "No tags found  for "+targetURL)
+		FatalIf(probe.NewError(errors.New("check 'mc tag set --help' on how to set tags")), "No tags found  for "+targetURL)
 	}
 
 	console.SetColor("Name", color.New(color.Bold, color.FgCyan))

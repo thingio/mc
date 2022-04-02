@@ -42,12 +42,12 @@ func TestParseEncryptionKeys(t *testing.T) {
 	}
 	testCases := []struct {
 		encryptionKey  string
-		expectedEncMap map[string][]prefixSSEPair
+		expectedEncMap map[string][]PrefixSSEPair
 		success        bool
 	}{
 		{
 			encryptionKey: "myminio1/test2=32byteslongsecretkeymustbegiven2",
-			expectedEncMap: map[string][]prefixSSEPair{"myminio1": {{
+			expectedEncMap: map[string][]PrefixSSEPair{"myminio1": {{
 				Prefix: "myminio1/test2",
 				SSE:    sseKey1,
 			}}},
@@ -60,7 +60,7 @@ func TestParseEncryptionKeys(t *testing.T) {
 		},
 		{
 			encryptionKey: "myminio1/test2=32byteslongsecretkey,ustbegiven1",
-			expectedEncMap: map[string][]prefixSSEPair{"myminio1": {{
+			expectedEncMap: map[string][]PrefixSSEPair{"myminio1": {{
 				Prefix: "myminio1/test2",
 				SSE:    sseCommaKey1,
 			}}},
@@ -68,7 +68,7 @@ func TestParseEncryptionKeys(t *testing.T) {
 		},
 		{
 			encryptionKey: "myminio1/test2=32byteslongsecret   mustbegiven1",
-			expectedEncMap: map[string][]prefixSSEPair{"myminio1": {{
+			expectedEncMap: map[string][]PrefixSSEPair{"myminio1": {{
 				Prefix: "myminio1/test2",
 				SSE:    sseSpaceKey1,
 			}}},
@@ -76,7 +76,7 @@ func TestParseEncryptionKeys(t *testing.T) {
 		},
 		{
 			encryptionKey: "myminio1/test2=32byteslongsecretkeymustbegiven2,myminio1/test1/a=32byteslongsecretkeymustbegiven1",
-			expectedEncMap: map[string][]prefixSSEPair{"myminio1": {{
+			expectedEncMap: map[string][]PrefixSSEPair{"myminio1": {{
 				Prefix: "myminio1/test1/a",
 				SSE:    sseKey2,
 			}, {

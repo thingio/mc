@@ -59,7 +59,7 @@ func (s serviceStopMessage) String() string {
 // JSON jsonified make bucket message.
 func (s serviceStopMessage) JSON() string {
 	serviceStopJSONBytes, e := json.MarshalIndent(s, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 
 	return string(serviceStopJSONBytes)
 }
@@ -84,10 +84,10 @@ func mainAdminServiceStop(ctx *cli.Context) error {
 	aliasedURL := args.Get(0)
 
 	client, err := newAdminClient(aliasedURL)
-	fatalIf(err, "Unable to initialize admin connection.")
+	FatalIf(err, "Unable to initialize admin connection.")
 
 	// Stop the specified MinIO server
-	fatalIf(probe.NewError(client.ServiceStop(globalContext)), "Unable to stop the server.")
+	FatalIf(probe.NewError(client.ServiceStop(GlobalContext)), "Unable to stop the server.")
 
 	// Success..
 	printMsg(serviceStopMessage{Status: "success", ServerURL: aliasedURL})

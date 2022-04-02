@@ -142,12 +142,12 @@ func watchFind(ctxCtx context.Context, ctx *findContext) {
 		Events:    []string{"put"},
 	}
 	watchObj, err := ctx.clnt.Watch(ctxCtx, options)
-	fatalIf(err.Trace(ctx.targetAlias), "Cannot watch with given options.")
+	FatalIf(err.Trace(ctx.targetAlias), "Cannot watch with given options.")
 
 	// Loop until user CTRL-C the command line.
 	for {
 		select {
-		case <-globalContext.Done():
+		case <-GlobalContext.Done():
 			console.Println()
 			close(watchObj.DoneChan)
 			return
@@ -249,7 +249,7 @@ func doFind(ctxCtx context.Context, ctx *findContext) error {
 	var prevKeyName string
 
 	// iterate over all content which is within the given directory
-	for content := range ctx.clnt.List(globalContext, true, false, false, DirNone) {
+	for content := range ctx.clnt.List(GlobalContext, true, false, false, DirNone) {
 		if content.Err != nil {
 			switch content.Err.ToGoError().(type) {
 			// handle this specifically for filesystem related errors.
@@ -266,7 +266,7 @@ func doFind(ctxCtx context.Context, ctx *findContext) error {
 				errorIf(content.Err.Trace(ctx.clnt.GetURL().String()), "Unable to list folder.")
 				continue
 			}
-			fatalIf(content.Err.Trace(ctx.clnt.GetURL().String()), "Unable to list folder.")
+			FatalIf(content.Err.Trace(ctx.clnt.GetURL().String()), "Unable to list folder.")
 			continue
 		}
 		if content.StorageClass == s3StorageClassGlacier {
@@ -417,13 +417,13 @@ var defaultSevenDays = time.Duration(604800) * time.Second
 // argument to generate and return presigned URLs, returns error if any.
 func getShareURL(ctx context.Context, path string) string {
 	targetAlias, targetURLFull, _, err := expandAlias(path)
-	fatalIf(err.Trace(path), "Unable to expand alias.")
+	FatalIf(err.Trace(path), "Unable to expand alias.")
 
 	clnt, err := newClientFromAlias(targetAlias, targetURLFull)
-	fatalIf(err.Trace(targetAlias, targetURLFull), "Unable to initialize client instance from alias.")
+	FatalIf(err.Trace(targetAlias, targetURLFull), "Unable to initialize client instance from alias.")
 
 	content, err := clnt.Stat(ctx, false, false, nil)
-	fatalIf(err.Trace(targetURLFull, targetAlias), "Unable to lookup file/object.")
+	FatalIf(err.Trace(targetURLFull, targetAlias), "Unable to lookup file/object.")
 
 	// Skip if its a directory.
 	if content.Type.IsDir() {
@@ -432,11 +432,11 @@ func getShareURL(ctx context.Context, path string) string {
 
 	objectURL := content.URL.String()
 	newClnt, err := newClientFromAlias(targetAlias, objectURL)
-	fatalIf(err.Trace(targetAlias, objectURL), "Unable to initialize new client from alias.")
+	FatalIf(err.Trace(targetAlias, objectURL), "Unable to initialize new client from alias.")
 
 	// Set default expiry for each url (point of no longer valid), to be 7 days
 	shareURL, err := newClnt.ShareDownload(ctx, defaultSevenDays)
-	fatalIf(err.Trace(targetAlias, objectURL), "Unable to generate share url.")
+	FatalIf(err.Trace(targetAlias, objectURL), "Unable to generate share url.")
 
 	return shareURL
 }

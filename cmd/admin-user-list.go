@@ -67,10 +67,10 @@ func mainAdminUserList(ctx *cli.Context) error {
 
 	// Create a new MinIO Admin Client
 	client, err := newAdminClient(aliasedURL)
-	fatalIf(err, "Unable to initialize admin connection.")
+	FatalIf(err, "Unable to initialize admin connection.")
 
-	users, e := client.ListUsers(globalContext)
-	fatalIf(probe.NewError(e).Trace(args...), "Cannot list user")
+	users, e := client.ListUsers(GlobalContext)
+	FatalIf(probe.NewError(e).Trace(args...), "Cannot list user")
 
 	for k, v := range users {
 		printMsg(userMessage{

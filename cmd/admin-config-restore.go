@@ -67,7 +67,7 @@ func (u configRestoreMessage) String() (msg string) {
 func (u configRestoreMessage) JSON() string {
 	u.Status = "success"
 	statusJSONBytes, e := json.MarshalIndent(u, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 
 	return string(statusJSONBytes)
 }
@@ -91,10 +91,10 @@ func mainAdminConfigRestore(ctx *cli.Context) error {
 
 	// Create a new MinIO Admin Client
 	client, err := newAdminClient(aliasedURL)
-	fatalIf(err, "Unable to initialize admin connection.")
+	FatalIf(err, "Unable to initialize admin connection.")
 
 	// Call get config API
-	fatalIf(probe.NewError(client.RestoreConfigHistoryKV(globalContext, args.Get(1))), "Cannot restore server configuration.")
+	FatalIf(probe.NewError(client.RestoreConfigHistoryKV(GlobalContext, args.Get(1))), "Cannot restore server configuration.")
 
 	// Print
 	printMsg(configRestoreMessage{

@@ -111,7 +111,7 @@ func (s policyRules) String() string {
 // JSON jsonified policy message.
 func (s policyRules) JSON() string {
 	policyJSONBytes, e := json.MarshalIndent(s, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 	return string(policyJSONBytes)
 }
 
@@ -140,7 +140,7 @@ func (s policyMessage) String() string {
 	}
 	if s.Operation == "get-json" {
 		policy, e := json.MarshalIndent(s.Policy, "", " ")
-		fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+		FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 		return string(policy)
 	}
 	// nothing to print
@@ -150,7 +150,7 @@ func (s policyMessage) String() string {
 // JSON jsonified policy message.
 func (s policyMessage) JSON() string {
 	policyJSONBytes, e := json.MarshalIndent(s, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 
 	return string(policyJSONBytes)
 }
@@ -169,7 +169,7 @@ func (s policyLinksMessage) String() string {
 // JSON jsonified policy message.
 func (s policyLinksMessage) JSON() string {
 	policyJSONBytes, e := json.MarshalIndent(s, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 
 	return string(policyJSONBytes)
 }
@@ -200,7 +200,7 @@ func checkPolicySyntax(ctx *cli.Context) {
 			accessPerms(secondArg) != accessDownload &&
 			accessPerms(secondArg) != accessUpload &&
 			accessPerms(secondArg) != accessPublic {
-			fatalIf(errDummy().Trace(),
+			FatalIf(errDummy().Trace(),
 				"Unrecognized permission `"+string(secondArg)+"`. Allowed values are [none, download, upload, public].")
 		}
 
@@ -211,7 +211,7 @@ func checkPolicySyntax(ctx *cli.Context) {
 		}
 		// Validate the type of input file
 		if filepath.Ext(string(secondArg)) != ".json" {
-			fatalIf(errDummy().Trace(),
+			FatalIf(errDummy().Trace(),
 				"Unrecognized policy file format `"+string(secondArg)+"`. Only json files are accepted.")
 		}
 
@@ -255,7 +255,7 @@ func accessPermToString(perm accessPerms) string {
 
 // doSetAccess do set access.
 func doSetAccess(ctx context.Context, targetURL string, targetPERMS accessPerms) *probe.Error {
-	clnt, err := newClient(targetURL)
+	clnt, err := NewClient(targetURL)
 	if err != nil {
 		return err.Trace(targetURL)
 	}
@@ -268,13 +268,13 @@ func doSetAccess(ctx context.Context, targetURL string, targetPERMS accessPerms)
 
 // doSetAccessJSON do set access JSON.
 func doSetAccessJSON(ctx context.Context, targetURL string, targetPERMS accessPerms) *probe.Error {
-	clnt, err := newClient(targetURL)
+	clnt, err := NewClient(targetURL)
 	if err != nil {
 		return err.Trace(targetURL)
 	}
 	fileReader, e := os.Open(string(targetPERMS))
 	if e != nil {
-		fatalIf(probe.NewError(e).Trace(), "Unable to set policy for `"+targetURL+"`.")
+		FatalIf(probe.NewError(e).Trace(), "Unable to set policy for `"+targetURL+"`.")
 	}
 	defer fileReader.Close()
 
@@ -316,7 +316,7 @@ func stringToAccessPerm(perm string) accessPerms {
 
 // doGetAccess do get access.
 func doGetAccess(ctx context.Context, targetURL string) (perms accessPerms, policyStr string, err *probe.Error) {
-	clnt, err := newClient(targetURL)
+	clnt, err := NewClient(targetURL)
 	if err != nil {
 		return "", "", err.Trace(targetURL)
 	}
@@ -329,7 +329,7 @@ func doGetAccess(ctx context.Context, targetURL string) (perms accessPerms, poli
 
 // doGetAccessRules do get access rules.
 func doGetAccessRules(ctx context.Context, targetURL string) (r map[string]string, err *probe.Error) {
-	clnt, err := newClient(targetURL)
+	clnt, err := NewClient(targetURL)
 	if err != nil {
 		return map[string]string{}, err.Trace(targetURL)
 	}
@@ -338,7 +338,7 @@ func doGetAccessRules(ctx context.Context, targetURL string) (r map[string]strin
 
 // Run policy list command
 func runPolicyListCmd(args cli.Args) {
-	ctx, cancelPolicyList := context.WithCancel(globalContext)
+	ctx, cancelPolicyList := context.WithCancel(GlobalContext)
 	defer cancelPolicyList()
 
 	targetURL := args.First()
@@ -346,9 +346,9 @@ func runPolicyListCmd(args cli.Args) {
 	if err != nil {
 		switch err.ToGoError().(type) {
 		case APINotImplemented:
-			fatalIf(err.Trace(), "Unable to list policies of a non S3 url `"+targetURL+"`.")
+			FatalIf(err.Trace(), "Unable to list policies of a non S3 url `"+targetURL+"`.")
 		default:
-			fatalIf(err.Trace(targetURL), "Unable to list policies of target `"+targetURL+"`.")
+			FatalIf(err.Trace(targetURL), "Unable to list policies of target `"+targetURL+"`.")
 		}
 	}
 	for k, v := range policies {
@@ -358,7 +358,7 @@ func runPolicyListCmd(args cli.Args) {
 
 // Run policy links command
 func runPolicyLinksCmd(args cli.Args, recursive bool) {
-	ctx, cancelPolicyLinks := context.WithCancel(globalContext)
+	ctx, cancelPolicyLinks := context.WithCancel(GlobalContext)
 	defer cancelPolicyLinks()
 
 	// Get alias/bucket/prefix argument
@@ -369,9 +369,9 @@ func runPolicyLinksCmd(args cli.Args, recursive bool) {
 	if err != nil {
 		switch err.ToGoError().(type) {
 		case APINotImplemented:
-			fatalIf(err.Trace(), "Unable to list policies of a non S3 url `"+targetURL+"`.")
+			FatalIf(err.Trace(), "Unable to list policies of a non S3 url `"+targetURL+"`.")
 		default:
-			fatalIf(err.Trace(targetURL), "Unable to list policies of target `"+targetURL+"`.")
+			FatalIf(err.Trace(targetURL), "Unable to list policies of target `"+targetURL+"`.")
 		}
 	}
 
@@ -398,10 +398,10 @@ func runPolicyLinksCmd(args cli.Args, recursive bool) {
 		}
 		// Construct the new path to search for public objects
 		newURL := alias + "/" + policyPath
-		clnt, err := newClient(newURL)
-		fatalIf(err.Trace(newURL), "Unable to initialize target `"+targetURL+"`.")
+		clnt, err := NewClient(newURL)
+		FatalIf(err.Trace(newURL), "Unable to initialize target `"+targetURL+"`.")
 		// Search for public objects
-		for content := range clnt.List(globalContext, isRecursive, isIncomplete, false, DirFirst) {
+		for content := range clnt.List(GlobalContext, isRecursive, isIncomplete, false, DirFirst) {
 			if content.Err != nil {
 				errorIf(content.Err.Trace(clnt.GetURL().String()), "Unable to list folder.")
 				continue
@@ -429,7 +429,7 @@ func runPolicyLinksCmd(args cli.Args, recursive bool) {
 
 // Run policy cmd to fetch set permission
 func runPolicyCmd(args cli.Args) {
-	ctx, cancelPolicy := context.WithCancel(globalContext)
+	ctx, cancelPolicy := context.WithCancel(GlobalContext)
 	defer cancelPolicy()
 
 	var operation, policyStr string
@@ -458,16 +458,16 @@ func runPolicyCmd(args cli.Args) {
 	if probeErr != nil {
 		switch probeErr.ToGoError().(type) {
 		case APINotImplemented:
-			fatalIf(probeErr.Trace(), "Unable to "+operation+" policy of a non S3 url `"+targetURL+"`.")
+			FatalIf(probeErr.Trace(), "Unable to "+operation+" policy of a non S3 url `"+targetURL+"`.")
 		default:
-			fatalIf(probeErr.Trace(targetURL, string(perms)),
+			FatalIf(probeErr.Trace(targetURL, string(perms)),
 				"Unable to "+operation+" policy `"+string(perms)+"` for `"+targetURL+"`.")
 		}
 	}
 	policyJSON := map[string]interface{}{}
 	if policyStr != "" {
 		e := json.Unmarshal([]byte(policyStr), &policyJSON)
-		fatalIf(probe.NewError(e), "Cannot unmarshal custom policy file.")
+		FatalIf(probe.NewError(e), "Cannot unmarshal custom policy file.")
 	}
 	printMsg(policyMessage{
 		Status:    "success",

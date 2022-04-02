@@ -98,7 +98,7 @@ func checkConfigHostAddSyntax(ctx *cli.Context, accessKey string, secretKey stri
 	args := ctx.Args()
 	argsNr := len(args)
 	if argsNr > 4 || argsNr < 2 {
-		fatalIf(errInvalidArgument().Trace(ctx.Args().Tail()...),
+		FatalIf(errInvalidArgument().Trace(ctx.Args().Tail()...),
 			"Incorrect number of arguments for host add command.")
 	}
 
@@ -108,44 +108,44 @@ func checkConfigHostAddSyntax(ctx *cli.Context, accessKey string, secretKey stri
 	bucketLookup := ctx.String("lookup")
 
 	if !isValidAlias(alias) {
-		fatalIf(errInvalidAlias(alias), "Invalid alias.")
+		FatalIf(errInvalidAlias(alias), "Invalid alias.")
 	}
 
 	if !isValidHostURL(url) {
-		fatalIf(errInvalidURL(url), "Invalid URL.")
+		FatalIf(errInvalidURL(url), "Invalid URL.")
 	}
 
 	if !isValidAccessKey(accessKey) {
-		fatalIf(errInvalidArgument().Trace(accessKey),
+		FatalIf(errInvalidArgument().Trace(accessKey),
 			"Invalid access key `"+accessKey+"`.")
 	}
 
 	if !isValidSecretKey(secretKey) {
-		fatalIf(errInvalidArgument().Trace(secretKey),
+		FatalIf(errInvalidArgument().Trace(secretKey),
 			"Invalid secret key `"+secretKey+"`.")
 	}
 
 	if api != "" && !isValidAPI(api) { // Empty value set to default "S3v4".
-		fatalIf(errInvalidArgument().Trace(api),
+		FatalIf(errInvalidArgument().Trace(api),
 			"Unrecognized API signature. Valid options are `[S3v4, S3v2]`.")
 	}
 
 	if !isValidLookup(bucketLookup) {
-		fatalIf(errInvalidArgument().Trace(bucketLookup),
+		FatalIf(errInvalidArgument().Trace(bucketLookup),
 			"Unrecognized bucket lookup. Valid options are `[dns,auto, path]`.")
 	}
 }
 
-// addHost - add a host config.
-func addHost(alias string, hostCfgV9 hostConfigV9) {
+// AddHost - add a host config.
+func AddHost(alias string, hostCfgV9 HostConfigV9) {
 	mcCfgV9, err := loadMcConfig()
-	fatalIf(err.Trace(globalMCConfigVersion), "Unable to load config `"+mustGetMcConfigPath()+"`.")
+	FatalIf(err.Trace(globalMCConfigVersion), "Unable to load config `"+mustGetMcConfigPath()+"`.")
 
 	// Add new host.
 	mcCfgV9.Hosts[alias] = hostCfgV9
 
 	err = saveMcConfig(mcCfgV9)
-	fatalIf(err.Trace(alias), "Unable to update hosts in config version `"+mustGetMcConfigPath()+"`.")
+	FatalIf(err.Trace(alias), "Unable to update hosts in config version `"+mustGetMcConfigPath()+"`.")
 
 	printMsg(hostMessage{
 		op:        "add",
@@ -212,7 +212,7 @@ func probeS3Signature(ctx context.Context, accessKey, secretKey, url string) (st
 // signature auto-probe when needed.
 func BuildS3Config(ctx context.Context, url, accessKey, secretKey, api, lookup string) (*Config, *probe.Error) {
 
-	s3Config := NewS3Config(url, &hostConfigV9{
+	s3Config := NewS3Config(url, &HostConfigV9{
 		AccessKey: accessKey,
 		SecretKey: secretKey,
 		URL:       url,
@@ -286,13 +286,13 @@ func mainConfigHostAdd(cli *cli.Context) error {
 	accessKey, secretKey := fetchHostKeys(args)
 	checkConfigHostAddSyntax(cli, accessKey, secretKey)
 
-	ctx, cancelHostAdd := context.WithCancel(globalContext)
+	ctx, cancelHostAdd := context.WithCancel(GlobalContext)
 	defer cancelHostAdd()
 
 	s3Config, err := BuildS3Config(ctx, url, accessKey, secretKey, api, lookup)
-	fatalIf(err.Trace(cli.Args()...), "Unable to initialize new config from the provided credentials.")
+	FatalIf(err.Trace(cli.Args()...), "Unable to initialize new config from the provided credentials.")
 
-	addHost(alias, hostConfigV9{
+	AddHost(alias, HostConfigV9{
 		URL:       s3Config.HostURL,
 		AccessKey: s3Config.AccessKey,
 		SecretKey: s3Config.SecretKey,

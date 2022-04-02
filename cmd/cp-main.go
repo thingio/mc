@@ -196,7 +196,7 @@ func (c copyMessage) String() string {
 func (c copyMessage) JSON() string {
 	c.Status = "success"
 	copyMessageBytes, e := json.MarshalIndent(c, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 
 	return string(copyMessageBytes)
 }
@@ -216,7 +216,7 @@ type ProgressReader interface {
 }
 
 // doCopy - Copy a single file from source to destination
-func doCopy(ctx context.Context, cpURLs URLs, pg ProgressReader, encKeyDB map[string][]prefixSSEPair, isMvCmd bool, preserve bool) URLs {
+func doCopy(ctx context.Context, cpURLs URLs, pg ProgressReader, encKeyDB map[string][]PrefixSSEPair, isMvCmd bool, preserve bool) URLs {
 	if cpURLs.Error != nil {
 		cpURLs.Error = cpURLs.Error.Trace()
 		return cpURLs
@@ -279,7 +279,7 @@ func doPrepareCopyURLs(ctx context.Context, session *sessionV8, cancelCopy conte
 	encryptKeys := session.Header.CommandStringFlags["encrypt-key"]
 	encrypt := session.Header.CommandStringFlags["encrypt"]
 	encKeyDB, err := parseAndValidateEncryptionKeys(encryptKeys, encrypt)
-	fatalIf(err, "Unable to parse encryption keys.")
+	FatalIf(err, "Unable to parse encryption keys.")
 
 	// Create a session data file to store the processed URLs.
 	dataFP := session.NewDataWriter()
@@ -314,7 +314,7 @@ func doPrepareCopyURLs(ctx context.Context, session *sessionV8, cancelCopy conte
 			jsonData, e := json.Marshal(cpURLs)
 			if e != nil {
 				session.Delete()
-				fatalIf(probe.NewError(e), "Unable to prepare URL for copying. Error in JSON marshaling.")
+				FatalIf(probe.NewError(e), "Unable to prepare URL for copying. Error in JSON marshaling.")
 			}
 			dataFP.Write(jsonData)
 			dataFP.Write([]byte{'\n'})
@@ -324,7 +324,7 @@ func doPrepareCopyURLs(ctx context.Context, session *sessionV8, cancelCopy conte
 
 			totalBytes += cpURLs.SourceContent.Size
 			totalObjects++
-		case <-globalContext.Done():
+		case <-GlobalContext.Done():
 			cancelCopy()
 			// Print in new line and adjust to top so that we don't print over the ongoing scan bar
 			if !globalQuiet && !globalJSON {
@@ -341,7 +341,7 @@ func doPrepareCopyURLs(ctx context.Context, session *sessionV8, cancelCopy conte
 	return
 }
 
-func doCopySession(ctx context.Context, cancelCopy context.CancelFunc, cli *cli.Context, session *sessionV8, encKeyDB map[string][]prefixSSEPair, isMvCmd bool) error {
+func doCopySession(ctx context.Context, cancelCopy context.CancelFunc, cli *cli.Context, session *sessionV8, encKeyDB map[string][]PrefixSSEPair, isMvCmd bool) error {
 	var isCopied func(string) bool
 	var totalObjects, totalBytes int64
 
@@ -524,7 +524,7 @@ func doCopySession(ctx context.Context, cancelCopy context.CancelFunc, cli *cli.
 loop:
 	for {
 		select {
-		case <-globalContext.Done():
+		case <-GlobalContext.Done():
 			close(quitCh)
 			cancelCopy()
 			// Receive interrupt notification.
@@ -616,18 +616,18 @@ func getMetaDataEntry(metadataString string) (map[string]string, *probe.Error) {
 
 // mainCopy is the entry point for cp command.
 func mainCopy(cliCtx *cli.Context) error {
-	ctx, cancelCopy := context.WithCancel(globalContext)
+	ctx, cancelCopy := context.WithCancel(GlobalContext)
 	defer cancelCopy()
 
 	// Parse encryption keys per command.
 	encKeyDB, err := getEncKeys(cliCtx)
-	fatalIf(err, "Unable to parse encryption keys.")
+	FatalIf(err, "Unable to parse encryption keys.")
 
 	// Parse metadata.
 	userMetaMap := make(map[string]string)
 	if cliCtx.String("attr") != "" {
 		userMetaMap, err = getMetaDataEntry(cliCtx.String("attr"))
-		fatalIf(err, "Unable to parse attribute %v", cliCtx.String("attr"))
+		FatalIf(err, "Unable to parse attribute %v", cliCtx.String("attr"))
 	}
 
 	// check 'copy' cli arguments.
@@ -650,7 +650,7 @@ func mainCopy(cliCtx *cli.Context) error {
 
 	if sseKeys != "" {
 		sseKeys, err = getDecodedKey(sseKeys)
-		fatalIf(err, "Unable to parse encryption keys.")
+		FatalIf(err, "Unable to parse encryption keys.")
 	}
 	sse := cliCtx.String("encrypt")
 
@@ -660,7 +660,7 @@ func mainCopy(cliCtx *cli.Context) error {
 		sessionID := getHash("cp", cliCtx.Args())
 		if isSessionExists(sessionID) {
 			session, err = loadSessionV8(sessionID)
-			fatalIf(err.Trace(sessionID), "Unable to load session.")
+			FatalIf(err.Trace(sessionID), "Unable to load session.")
 		} else {
 			session = newSessionV8(sessionID)
 			session.Header.CommandType = "cp"
@@ -685,7 +685,7 @@ func mainCopy(cliCtx *cli.Context) error {
 			var e error
 			if session.Header.RootPath, e = os.Getwd(); e != nil {
 				session.Delete()
-				fatalIf(probe.NewError(e), "Unable to get current working folder.")
+				FatalIf(probe.NewError(e), "Unable to get current working folder.")
 			}
 
 			// extract URLs.

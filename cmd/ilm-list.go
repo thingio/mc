@@ -144,7 +144,7 @@ func (i ilmListMessage) String() string {
 
 func (i ilmListMessage) JSON() string {
 	msgBytes, e := json.MarshalIndent(i, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 	return string(msgBytes)
 }
 
@@ -170,7 +170,7 @@ func checkILMListSyntax(ctx *cli.Context) {
 	}
 
 	if !validateILMListFlagSet(ctx) {
-		fatalIf(errInvalidArgument(), "only one display field flag is allowed per list command. Refer mc "+ctx.Command.FullName()+" --help.")
+		FatalIf(errInvalidArgument(), "only one display field flag is allowed per list command. Refer mc "+ctx.Command.FullName()+" --help.")
 	}
 }
 
@@ -255,7 +255,7 @@ func getILMRowsWithTags(tbl *PrettyTable, cellDataWithTags *[][]string, newRows 
 }
 
 func mainILMList(cliCtx *cli.Context) error {
-	ctx, cancelILMList := context.WithCancel(globalContext)
+	ctx, cancelILMList := context.WithCancel(GlobalContext)
 	defer cancelILMList()
 
 	checkILMListSyntax(cliCtx)
@@ -264,14 +264,14 @@ func mainILMList(cliCtx *cli.Context) error {
 	args := cliCtx.Args()
 	urlStr := args.Get(0)
 
-	client, err := newClient(urlStr)
-	fatalIf(err.Trace(urlStr), "Unable to initialize client for "+urlStr)
+	client, err := NewClient(urlStr)
+	FatalIf(err.Trace(urlStr), "Unable to initialize client for "+urlStr)
 
 	ilmCfg, err := client.GetLifecycle(ctx)
-	fatalIf(err.Trace(args...), "Unable to get lifecycle")
+	FatalIf(err.Trace(args...), "Unable to get lifecycle")
 
 	if len(ilmCfg.Rules) == 0 {
-		fatalIf(probe.NewError(errors.New("lifecycle configuration not set")).Trace(urlStr),
+		FatalIf(probe.NewError(errors.New("lifecycle configuration not set")).Trace(urlStr),
 			"Unable to list lifecycle configuration")
 	}
 

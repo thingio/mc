@@ -62,7 +62,7 @@ func (i ilmImportMessage) String() string {
 
 func (i ilmImportMessage) JSON() string {
 	msgBytes, e := json.MarshalIndent(i, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 	return string(msgBytes)
 }
 
@@ -86,7 +86,7 @@ func checkILMImportSyntax(ctx *cli.Context) {
 }
 
 func mainILMImport(cliCtx *cli.Context) error {
-	ctx, cancelILMImport := context.WithCancel(globalContext)
+	ctx, cancelILMImport := context.WithCancel(GlobalContext)
 	defer cancelILMImport()
 
 	checkILMImportSyntax(cliCtx)
@@ -95,13 +95,13 @@ func mainILMImport(cliCtx *cli.Context) error {
 	args := cliCtx.Args()
 	urlStr := args.Get(0)
 
-	client, err := newClient(urlStr)
-	fatalIf(err.Trace(urlStr), "Unable to initialize client for "+urlStr)
+	client, err := NewClient(urlStr)
+	FatalIf(err.Trace(urlStr), "Unable to initialize client for "+urlStr)
 
 	ilmCfg, err := readILMConfig()
-	fatalIf(err.Trace(args...), "Unable to read ILM configuration")
+	FatalIf(err.Trace(args...), "Unable to read ILM configuration")
 
-	fatalIf(client.SetLifecycle(ctx, ilmCfg).Trace(urlStr), "Unable to set new lifecycle rules")
+	FatalIf(client.SetLifecycle(ctx, ilmCfg).Trace(urlStr), "Unable to set new lifecycle rules")
 
 	printMsg(ilmImportMessage{
 		Status: "success",

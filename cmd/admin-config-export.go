@@ -58,7 +58,7 @@ func (u configExportMessage) String() string {
 func (u configExportMessage) JSON() string {
 	u.Status = "success"
 	statusJSONBytes, e := json.MarshalIndent(u, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 
 	return string(statusJSONBytes)
 }
@@ -80,11 +80,11 @@ func mainAdminConfigExport(ctx *cli.Context) error {
 
 	// Create a new MinIO Admin Client
 	client, err := newAdminClient(aliasedURL)
-	fatalIf(err, "Unable to initialize admin connection.")
+	FatalIf(err, "Unable to initialize admin connection.")
 
 	// Call get config API
-	buf, e := client.GetConfig(globalContext)
-	fatalIf(probe.NewError(e), "Cannot get server config")
+	buf, e := client.GetConfig(GlobalContext)
+	FatalIf(probe.NewError(e), "Cannot get server config")
 
 	// Print
 	printMsg(configExportMessage{

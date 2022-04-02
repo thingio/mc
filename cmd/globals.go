@@ -51,7 +51,7 @@ var (
 	globalNoColor  = false // No Color flag set via command line
 	globalInsecure = false // Insecure flag set via command line
 
-	globalContext, globalCancel = context.WithCancel(context.Background())
+	GlobalContext, globalCancel = context.WithCancel(context.Background())
 )
 
 var (

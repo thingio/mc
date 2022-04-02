@@ -155,7 +155,7 @@ EXAMPLES:
 }
 
 // checkFindSyntax - validate the passed arguments
-func checkFindSyntax(ctx context.Context, cliCtx *cli.Context, encKeyDB map[string][]prefixSSEPair) {
+func checkFindSyntax(ctx context.Context, cliCtx *cli.Context, encKeyDB map[string][]PrefixSSEPair) {
 	args := cliCtx.Args()
 	if !args.Present() {
 		args = []string{"./"} // No args just default to present directory.
@@ -165,7 +165,7 @@ func checkFindSyntax(ctx context.Context, cliCtx *cli.Context, encKeyDB map[stri
 
 	for _, arg := range args {
 		if strings.TrimSpace(arg) == "" {
-			fatalIf(errInvalidArgument().Trace(args...), "Unable to validate empty argument.")
+			FatalIf(errInvalidArgument().Trace(args...), "Unable to validate empty argument.")
 		}
 	}
 
@@ -177,7 +177,7 @@ func checkFindSyntax(ctx context.Context, cliCtx *cli.Context, encKeyDB map[stri
 			if _, ok := err.ToGoError().(BucketNameEmpty); ok && !cliCtx.Bool("watch") {
 				continue
 			}
-			fatalIf(err.Trace(url), "Unable to stat `"+url+"`.")
+			FatalIf(err.Trace(url), "Unable to stat `"+url+"`.")
 		}
 	}
 }
@@ -209,7 +209,7 @@ type findContext struct {
 
 // mainFind - handler for mc find commands
 func mainFind(cliCtx *cli.Context) error {
-	ctx, cancelFind := context.WithCancel(globalContext)
+	ctx, cancelFind := context.WithCancel(GlobalContext)
 	defer cancelFind()
 
 	// Additional command specific theme customization.
@@ -218,7 +218,7 @@ func mainFind(cliCtx *cli.Context) error {
 
 	// Parse encryption keys per command.
 	encKeyDB, err := getEncKeys(cliCtx)
-	fatalIf(err, "Unable to parse encryption keys.")
+	FatalIf(err, "Unable to parse encryption keys.")
 
 	checkFindSyntax(ctx, cliCtx, encKeyDB)
 
@@ -229,8 +229,8 @@ func mainFind(cliCtx *cli.Context) error {
 		args[0] = "./" // If the arg is '.' treat it as './'.
 	}
 
-	clnt, err := newClient(args[0])
-	fatalIf(err.Trace(args...), "Unable to initialize `"+args[0]+"`.")
+	clnt, err := NewClient(args[0])
+	FatalIf(err.Trace(args...), "Unable to initialize `"+args[0]+"`.")
 
 	var olderThan, newerThan string
 
@@ -248,16 +248,16 @@ func mainFind(cliCtx *cli.Context) error {
 
 	if cliCtx.String("larger") != "" {
 		largerSize, e = humanize.ParseBytes(cliCtx.String("larger"))
-		fatalIf(probe.NewError(e).Trace(cliCtx.String("larger")), "Unable to parse input bytes.")
+		FatalIf(probe.NewError(e).Trace(cliCtx.String("larger")), "Unable to parse input bytes.")
 	}
 
 	if cliCtx.String("smaller") != "" {
 		smallerSize, e = humanize.ParseBytes(cliCtx.String("smaller"))
-		fatalIf(probe.NewError(e).Trace(cliCtx.String("smaller")), "Unable to parse input bytes.")
+		FatalIf(probe.NewError(e).Trace(cliCtx.String("smaller")), "Unable to parse input bytes.")
 	}
 
 	targetAlias, _, hostCfg, err := expandAlias(args[0])
-	fatalIf(err.Trace(args[0]), "Unable to expand alias.")
+	FatalIf(err.Trace(args[0]), "Unable to expand alias.")
 
 	var targetFullURL string
 	if hostCfg != nil {

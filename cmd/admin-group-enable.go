@@ -66,7 +66,7 @@ func mainAdminGroupEnableDisable(ctx *cli.Context) error {
 
 	// Create a new MinIO Admin Client
 	client, err := newAdminClient(aliasedURL)
-	fatalIf(err, "Unable to initialize admin connection.")
+	FatalIf(err, "Unable to initialize admin connection.")
 
 	group := args.Get(1)
 	var err1 error
@@ -77,10 +77,10 @@ func mainAdminGroupEnableDisable(ctx *cli.Context) error {
 		status = madmin.GroupDisabled
 	} else {
 		err1 = errors.New("cannot happen")
-		fatalIf(probe.NewError(err1).Trace(args...), "Could not get group enable")
+		FatalIf(probe.NewError(err1).Trace(args...), "Could not get group enable")
 	}
-	err1 = client.SetGroupStatus(globalContext, group, status)
-	fatalIf(probe.NewError(err1).Trace(args...), "Could not get group enable")
+	err1 = client.SetGroupStatus(GlobalContext, group, status)
+	FatalIf(probe.NewError(err1).Trace(args...), "Could not get group enable")
 
 	printMsg(groupMessage{
 		op:          ctx.Command.Name,

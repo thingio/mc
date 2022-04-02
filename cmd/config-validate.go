@@ -50,7 +50,7 @@ func validateConfigFile(config *configV9) (bool, []string) {
 	return validationSuccessful, errors
 }
 
-func validateConfigHost(host hostConfigV9) (bool, []string) {
+func validateConfigHost(host HostConfigV9) (bool, []string) {
 	var validationSuccessful = true
 	var hostErrors []string
 	if !isValidAPI(strings.ToLower(host.API)) {

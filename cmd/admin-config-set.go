@@ -72,7 +72,7 @@ func (u configSetMessage) String() (msg string) {
 func (u configSetMessage) JSON() string {
 	u.Status = "success"
 	statusJSONBytes, e := json.MarshalIndent(u, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 
 	return string(statusJSONBytes)
 }
@@ -99,14 +99,14 @@ func mainAdminConfigSet(ctx *cli.Context) error {
 
 	// Create a new MinIO Admin Client
 	client, err := newAdminClient(aliasedURL)
-	fatalIf(err, "Unable to initialize admin connection.")
+	FatalIf(err, "Unable to initialize admin connection.")
 
 	input := strings.Join(args.Tail(), " ")
 
 	if !strings.Contains(input, madmin.KvSeparator) {
 		// Call get config API
-		hr, e := client.HelpConfigKV(globalContext, args.Get(1), args.Get(2), ctx.IsSet("env"))
-		fatalIf(probe.NewError(e), "Cannot get help for the sub-system")
+		hr, e := client.HelpConfigKV(GlobalContext, args.Get(1), args.Get(2), ctx.IsSet("env"))
+		FatalIf(probe.NewError(e), "Cannot get help for the sub-system")
 
 		// Print
 		printMsg(configHelpMessage{
@@ -119,7 +119,7 @@ func mainAdminConfigSet(ctx *cli.Context) error {
 	}
 
 	// Call set config API
-	fatalIf(probe.NewError(client.SetConfigKV(globalContext, input)),
+	FatalIf(probe.NewError(client.SetConfigKV(GlobalContext, input)),
 		"Cannot set '%s' to server", input)
 
 	// Print set config result

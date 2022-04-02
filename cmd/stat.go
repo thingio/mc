@@ -97,7 +97,7 @@ func printStat(stat statMessage) {
 func (c statMessage) JSON() string {
 	c.Status = "success"
 	jsonMessageBytes, e := json.MarshalIndent(c, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 
 	return string(jsonMessageBytes)
 }
@@ -128,10 +128,10 @@ func getStandardizedURL(targetURL string) string {
 }
 
 // statURL - simple or recursive listing
-func statURL(ctx context.Context, targetURL string, isIncomplete, isRecursive bool, encKeyDB map[string][]prefixSSEPair) ([]*ClientContent, *probe.Error) {
+func statURL(ctx context.Context, targetURL string, isIncomplete, isRecursive bool, encKeyDB map[string][]PrefixSSEPair) ([]*ClientContent, *probe.Error) {
 	var stats []*ClientContent
 	var clnt Client
-	clnt, err := newClient(targetURL)
+	clnt, err := NewClient(targetURL)
 	if err != nil {
 		return nil, err
 	}

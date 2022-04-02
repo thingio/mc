@@ -294,7 +294,7 @@ func (ui *uiData) printItemsJSON(s *madmin.HealTaskStatus) (err error) {
 			return err
 		}
 		jsonBytes, err := json.MarshalIndent(r, "", " ")
-		fatalIf(probe.NewError(err), "Unable to marshal to JSON.")
+		FatalIf(probe.NewError(err), "Unable to marshal to JSON.")
 		console.Println(string(jsonBytes))
 	}
 	return nil
@@ -324,7 +324,7 @@ func (ui *uiData) printStatsJSON(s *madmin.HealTaskStatus) {
 	summary.ElapsedTime = int64(ui.HealDuration.Round(time.Second).Seconds())
 
 	jBytes, err := json.MarshalIndent(summary, "", " ")
-	fatalIf(probe.NewError(err), "Unable to marshal to JSON.")
+	FatalIf(probe.NewError(err), "Unable to marshal to JSON.")
 	console.Println(string(jBytes))
 }
 
@@ -407,10 +407,10 @@ func (ui *uiData) DisplayAndFollowHealStatus(aliasedURL string) (res madmin.Heal
 	firstIter := true
 	for {
 		select {
-		case <-globalContext.Done():
+		case <-GlobalContext.Done():
 			return res, errors.New(quitMsg)
 		default:
-			_, res, err = ui.Client.Heal(globalContext, ui.Bucket, ui.Prefix, *ui.HealOpts,
+			_, res, err = ui.Client.Heal(GlobalContext, ui.Bucket, ui.Prefix, *ui.HealOpts,
 				ui.ClientToken, ui.ForceStart, false)
 			if err != nil {
 				return res, err

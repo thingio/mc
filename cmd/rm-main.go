@@ -144,12 +144,12 @@ func (r rmMessage) String() string {
 func (r rmMessage) JSON() string {
 	r.Status = "success"
 	msgBytes, e := json.MarshalIndent(r, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 	return string(msgBytes)
 }
 
 // Validate command line arguments.
-func checkRmSyntax(ctx context.Context, cliCtx *cli.Context, encKeyDB map[string][]prefixSSEPair) {
+func checkRmSyntax(ctx context.Context, cliCtx *cli.Context, encKeyDB map[string][]PrefixSSEPair) {
 	// Set command flags from context.
 	isForce := cliCtx.Bool("force")
 	isRecursive := cliCtx.Bool("recursive")
@@ -169,11 +169,11 @@ func checkRmSyntax(ctx context.Context, cliCtx *cli.Context, encKeyDB map[string
 			break
 		}
 		if dir && isRecursive && !isForce {
-			fatalIf(errDummy().Trace(),
+			FatalIf(errDummy().Trace(),
 				"Removal requires --force flag. This operation is *IRREVERSIBLE*. Please review carefully before performing this *DANGEROUS* operation.")
 		}
 		if dir && !isRecursive {
-			fatalIf(errDummy().Trace(),
+			FatalIf(errDummy().Trace(),
 				"Removal requires --recursive flag. This operation is *IRREVERSIBLE*. Please review carefully before performing this *DANGEROUS* operation.")
 		}
 	}
@@ -185,20 +185,20 @@ func checkRmSyntax(ctx context.Context, cliCtx *cli.Context, encKeyDB map[string
 	// For all recursive operations make sure to check for 'force' flag.
 	if (isRecursive || isStdin) && !isForce {
 		if isNamespaceRemoval {
-			fatalIf(errDummy().Trace(),
+			FatalIf(errDummy().Trace(),
 				"This operation results in site-wide removal of objects. If you are really sure, retry this command with ‘--dangerous’ and ‘--force’ flags.")
 		}
-		fatalIf(errDummy().Trace(),
+		FatalIf(errDummy().Trace(),
 			"Removal requires --force flag. This operation is *IRREVERSIBLE*. Please review carefully before performing this *DANGEROUS* operation.")
 	}
 	if (isRecursive || isStdin) && isNamespaceRemoval && !isDangerous {
-		fatalIf(errDummy().Trace(),
+		FatalIf(errDummy().Trace(),
 			"This operation results in site-wide removal of objects. If you are really sure, retry this command with ‘--dangerous’ and ‘--force’ flags.")
 	}
 }
 
-func removeSingle(url string, isIncomplete, isFake, isForce, isBypass bool, olderThan, newerThan string, encKeyDB map[string][]prefixSSEPair) error {
-	ctx, cancelRemoveSingle := context.WithCancel(globalContext)
+func removeSingle(url string, isIncomplete, isFake, isForce, isBypass bool, olderThan, newerThan string, encKeyDB map[string][]PrefixSSEPair) error {
+	ctx, cancelRemoveSingle := context.WithCancel(GlobalContext)
 	defer cancelRemoveSingle()
 
 	isRecursive := false
@@ -263,8 +263,8 @@ func removeSingle(url string, isIncomplete, isFake, isForce, isBypass bool, olde
 	return nil
 }
 
-func removeRecursive(url string, isIncomplete, isFake, isBypass bool, olderThan, newerThan string, encKeyDB map[string][]prefixSSEPair) error {
-	ctx, cancelRemoveRecursive := context.WithCancel(globalContext)
+func removeRecursive(url string, isIncomplete, isFake, isBypass bool, olderThan, newerThan string, encKeyDB map[string][]PrefixSSEPair) error {
+	ctx, cancelRemoveRecursive := context.WithCancel(GlobalContext)
 	defer cancelRemoveRecursive()
 
 	targetAlias, targetURL, _ := mustExpandAlias(url)
@@ -348,12 +348,12 @@ func removeRecursive(url string, isIncomplete, isFake, isBypass bool, olderThan,
 
 // main for rm command.
 func mainRm(cliCtx *cli.Context) error {
-	ctx, cancelRm := context.WithCancel(globalContext)
+	ctx, cancelRm := context.WithCancel(GlobalContext)
 	defer cancelRm()
 
 	// Parse encryption keys per command.
 	encKeyDB, err := getEncKeys(cliCtx)
-	fatalIf(err, "Unable to parse encryption keys.")
+	FatalIf(err, "Unable to parse encryption keys.")
 
 	// check 'rm' cli arguments.
 	checkRmSyntax(ctx, cliCtx, encKeyDB)

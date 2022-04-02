@@ -114,6 +114,6 @@ func mainShareList(ctx *cli.Context) error {
 	initShareConfig()
 
 	// List shares.
-	fatalIf(doShareList(ctx.Args().First()).Trace(), "Unable to list previously shared URLs.")
+	FatalIf(doShareList(ctx.Args().First()).Trace(), "Unable to list previously shared URLs.")
 	return nil
 }

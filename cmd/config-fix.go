@@ -75,7 +75,7 @@ func fixConfigV3() {
 	}
 	brokenCfgV3 := newBrokenConfigV3()
 	brokenMcCfgV3, e := quick.LoadConfig(mustGetMcConfigPath(), nil, brokenCfgV3)
-	fatalIf(probe.NewError(e), "Unable to load config.")
+	FatalIf(probe.NewError(e), "Unable to load config.")
 
 	if brokenMcCfgV3.Version() != "3" {
 		return
@@ -107,10 +107,10 @@ func fixConfigV3() {
 
 	if isMutated {
 		mcNewConfigV3, e := quick.NewConfig(cfgV3, nil)
-		fatalIf(probe.NewError(e), "Unable to initialize quick config for config version `3`.")
+		FatalIf(probe.NewError(e), "Unable to initialize quick config for config version `3`.")
 
 		e = mcNewConfigV3.Save(mustGetMcConfigPath())
-		fatalIf(probe.NewError(e), "Unable to save config version `3`.")
+		FatalIf(probe.NewError(e), "Unable to save config version `3`.")
 
 		console.Infof("Successfully fixed %s broken config for version `3`.\n", mustGetMcConfigPath())
 	}
@@ -123,7 +123,7 @@ func fixConfigV6ForHosts() {
 	}
 
 	brokenMcCfgV6, e := quick.LoadConfig(mustGetMcConfigPath(), nil, newConfigV6())
-	fatalIf(probe.NewError(e), "Unable to load config.")
+	FatalIf(probe.NewError(e), "Unable to load config.")
 
 	if brokenMcCfgV6.Version() != "6" {
 		return
@@ -163,10 +163,10 @@ func fixConfigV6ForHosts() {
 	if isMutated {
 		// Save the new config back to the disk.
 		mcCfgV6, e := quick.NewConfig(newCfgV6, nil)
-		fatalIf(probe.NewError(e), "Unable to initialize quick config for config version `v6`.")
+		FatalIf(probe.NewError(e), "Unable to initialize quick config for config version `v6`.")
 
 		e = mcCfgV6.Save(mustGetMcConfigPath())
-		fatalIf(probe.NewError(e), "Unable to save config version `v6`.")
+		FatalIf(probe.NewError(e), "Unable to save config version `v6`.")
 	}
 }
 
@@ -176,10 +176,10 @@ func fixConfigV6() {
 		return
 	}
 	config, e := quick.NewConfig(newConfigV6(), nil)
-	fatalIf(probe.NewError(e), "Unable to initialize config.")
+	FatalIf(probe.NewError(e), "Unable to initialize config.")
 
 	e = config.Load(mustGetMcConfigPath())
-	fatalIf(probe.NewError(e).Trace(mustGetMcConfigPath()), "Unable to load config.")
+	FatalIf(probe.NewError(e).Trace(mustGetMcConfigPath()), "Unable to load config.")
 
 	if config.Data().(*configV6).Version != "6" {
 		return
@@ -193,7 +193,7 @@ func fixConfigV6() {
 	newConfig.Aliases = config.Data().(*configV6).Aliases
 	for host, hostCfg := range config.Data().(*configV6).Hosts {
 		if strings.Contains(host, "*") {
-			fatalIf(errInvalidArgument(),
+			FatalIf(errInvalidArgument(),
 				fmt.Sprintf("Glob style `*` pattern matching is no longer supported. Please fix `%s` entry manually.", host))
 		}
 		if strings.Contains(host, "*s3*") || strings.Contains(host, "*.s3*") {
@@ -238,10 +238,10 @@ func fixConfigV6() {
 
 	if isMutated {
 		newConf, e := quick.NewConfig(newConfig, nil)
-		fatalIf(probe.NewError(e), "Unable to initialize newly fixed config.")
+		FatalIf(probe.NewError(e), "Unable to initialize newly fixed config.")
 
 		e = newConf.Save(mustGetMcConfigPath())
-		fatalIf(probe.NewError(e).Trace(mustGetMcConfigPath()), "Unable to save newly fixed config path.")
+		FatalIf(probe.NewError(e).Trace(mustGetMcConfigPath()), "Unable to save newly fixed config path.")
 		console.Infof("Successfully fixed %s broken config for version `6`.\n", mustGetMcConfigPath())
 	}
 }
@@ -282,11 +282,11 @@ func fixConfigLocation() {
 		backupdir := fmt.Sprintf("%s.unused\\", mcCustomConfigDir)
 		_ = os.RemoveAll(backupdir)
 		err := os.Rename(mcCustomConfigDir, backupdir)
-		fatalIf(probe.NewError(err), fmt.Sprintln("Renaming unused config", mcCustomConfigDir, "->", backupdir, "failed. Please rename/remove file."))
+		FatalIf(probe.NewError(err), fmt.Sprintln("Renaming unused config", mcCustomConfigDir, "->", backupdir, "failed. Please rename/remove file."))
 		fallthrough
 	case !wantExists && legExists:
 		err := os.Rename(legFileName, mcCustomConfigDir)
-		fatalIf(probe.NewError(err), fmt.Sprintln("Migrating config location", legFileName, "->", mcCustomConfigDir, "failed. Please move config file."))
+		FatalIf(probe.NewError(err), fmt.Sprintln("Migrating config location", legFileName, "->", mcCustomConfigDir, "failed. Please move config file."))
 	default:
 		// Legacy does not exist.
 	}

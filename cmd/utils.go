@@ -125,7 +125,7 @@ func splitStr(path, sep string, n int) []string {
 
 // NewS3Config simply creates a new Config struct using the passed
 // parameters.
-func NewS3Config(urlStr string, hostCfg *hostConfigV9) *Config {
+func NewS3Config(urlStr string, hostCfg *HostConfigV9) *Config {
 	// We have a valid alias and hostConfig. We populate the
 	// credentials from the match found in the config file.
 	s3Config := new(Config)
@@ -168,7 +168,7 @@ func isOlder(ti time.Time, olderRef string) bool {
 	}
 	objectAge := time.Since(ti)
 	olderThan, e := ioutils.ParseDurationTime(olderRef)
-	fatalIf(probe.NewError(e), "Unable to parse olderThan=`"+olderRef+"`.")
+	FatalIf(probe.NewError(e), "Unable to parse olderThan=`"+olderRef+"`.")
 	return objectAge < olderThan
 }
 
@@ -180,7 +180,7 @@ func isNewer(ti time.Time, newerRef string) bool {
 
 	objectAge := time.Since(ti)
 	newerThan, e := ioutils.ParseDurationTime(newerRef)
-	fatalIf(probe.NewError(e), "Unable to parse newerThan=`"+newerRef+"`.")
+	FatalIf(probe.NewError(e), "Unable to parse newerThan=`"+newerRef+"`.")
 	return objectAge >= newerThan
 }
 
@@ -198,13 +198,13 @@ func getLookupType(l string) minio.BucketLookupType {
 }
 
 // struct representing object prefix and sse keys association.
-type prefixSSEPair struct {
+type PrefixSSEPair struct {
 	Prefix string
 	SSE    encrypt.ServerSide
 }
 
 // parse and validate encryption keys entered on command line
-func parseAndValidateEncryptionKeys(sseKeys string, sse string) (encMap map[string][]prefixSSEPair, err *probe.Error) {
+func parseAndValidateEncryptionKeys(sseKeys string, sse string) (encMap map[string][]PrefixSSEPair, err *probe.Error) {
 	encMap, err = parseEncryptionKeys(sseKeys)
 	if err != nil {
 		return nil, err
@@ -212,7 +212,7 @@ func parseAndValidateEncryptionKeys(sseKeys string, sse string) (encMap map[stri
 	if sse != "" {
 		for _, prefix := range strings.Split(sse, ",") {
 			alias, _ := url2Alias(prefix)
-			encMap[alias] = append(encMap[alias], prefixSSEPair{
+			encMap[alias] = append(encMap[alias], PrefixSSEPair{
 				Prefix: prefix,
 				SSE:    encrypt.NewSSE(),
 			})
@@ -230,8 +230,8 @@ func parseAndValidateEncryptionKeys(sseKeys string, sse string) (encMap map[stri
 
 // parse list of comma separated alias/prefix=sse key values entered on command line and
 // construct a map of alias to prefix and sse pairs.
-func parseEncryptionKeys(sseKeys string) (encMap map[string][]prefixSSEPair, err *probe.Error) {
-	encMap = make(map[string][]prefixSSEPair)
+func parseEncryptionKeys(sseKeys string) (encMap map[string][]PrefixSSEPair, err *probe.Error) {
+	encMap = make(map[string][]PrefixSSEPair)
 	if sseKeys == "" {
 		return
 	}
@@ -257,13 +257,13 @@ func parseEncryptionKeys(sseKeys string) (encMap map[string][]prefixSSEPair, err
 		}
 		sseKey := sseKeys[vs : vs+sseKeyLen]
 		if _, ok := encMap[alias]; !ok {
-			encMap[alias] = make([]prefixSSEPair, 0)
+			encMap[alias] = make([]PrefixSSEPair, 0)
 		}
 		sse, e := encrypt.NewSSEC([]byte(sseKey))
 		if e != nil {
 			return nil, probe.NewError(e)
 		}
-		encMap[alias] = append(encMap[alias], prefixSSEPair{
+		encMap[alias] = append(encMap[alias], PrefixSSEPair{
 			Prefix: prefix,
 			SSE:    sse,
 		})
@@ -281,7 +281,7 @@ func parseEncryptionKeys(sseKeys string) (encMap map[string][]prefixSSEPair, err
 }
 
 // byPrefixLength implements sort.Interface.
-type byPrefixLength []prefixSSEPair
+type byPrefixLength []PrefixSSEPair
 
 func (p byPrefixLength) Len() int { return len(p) }
 func (p byPrefixLength) Less(i, j int) bool {
@@ -290,7 +290,7 @@ func (p byPrefixLength) Less(i, j int) bool {
 func (p byPrefixLength) Swap(i, j int) { p[i], p[j] = p[j], p[i] }
 
 // get SSE Key if object prefix matches with given resource.
-func getSSE(resource string, encKeys []prefixSSEPair) encrypt.ServerSide {
+func getSSE(resource string, encKeys []PrefixSSEPair) encrypt.ServerSide {
 	for _, k := range encKeys {
 		if strings.HasPrefix(resource, k.Prefix) {
 			return k.SSE

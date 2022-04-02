@@ -103,7 +103,7 @@ func (u groupMessage) String() string {
 func (u groupMessage) JSON() string {
 	u.Status = "success"
 	jsonMessageBytes, e := json.MarshalIndent(u, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 
 	return string(jsonMessageBytes)
 }
@@ -120,7 +120,7 @@ func mainAdminGroupAdd(ctx *cli.Context) error {
 
 	// Create a new MinIO Admin Client
 	client, err := newAdminClient(aliasedURL)
-	fatalIf(err, "Unable to initialize admin connection.")
+	FatalIf(err, "Unable to initialize admin connection.")
 
 	members := []string{}
 	for i := 2; i < ctx.NArg(); i++ {
@@ -131,7 +131,7 @@ func mainAdminGroupAdd(ctx *cli.Context) error {
 		Members:  members,
 		IsRemove: false,
 	}
-	fatalIf(probe.NewError(client.UpdateGroupMembers(globalContext, gAddRemove)).Trace(args...), "Cannot add new group")
+	FatalIf(probe.NewError(client.UpdateGroupMembers(GlobalContext, gAddRemove)).Trace(args...), "Cannot add new group")
 
 	printMsg(groupMessage{
 		op:        "add",

@@ -54,14 +54,14 @@ func mainAdminKMSKeyStatus(ctx *cli.Context) error {
 	}
 
 	client, err := newAdminClient(ctx.Args().Get(0))
-	fatalIf(err, "Cannot get a configured admin connection.")
+	FatalIf(err, "Cannot get a configured admin connection.")
 
 	var keyID string
 	if len(ctx.Args()) == 2 {
 		keyID = ctx.Args().Get(1)
 	}
-	status, e := client.GetKeyStatus(globalContext, keyID)
-	fatalIf(probe.NewError(e), "Failed to get status information")
+	status, e := client.GetKeyStatus(GlobalContext, keyID)
+	FatalIf(probe.NewError(e), "Failed to get status information")
 
 	printMsg(kmsKeyStatusMsg(*status))
 	return nil

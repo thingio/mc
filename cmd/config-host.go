@@ -85,7 +85,7 @@ func (h hostMessage) String() string {
 func (h hostMessage) JSON() string {
 	h.Status = "success"
 	jsonMessageBytes, e := json.MarshalIndent(h, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 
 	return string(jsonMessageBytes)
 }

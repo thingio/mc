@@ -99,7 +99,7 @@ func (s sessionV8) JSON() string {
 	}
 	sessionMsg.Status = "success"
 	sessionBytes, e := json.MarshalIndent(sessionMsg, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 
 	return string(sessionBytes)
 }
@@ -180,10 +180,10 @@ func newSessionV8(sessionID string) *sessionV8 {
 	s.SessionID = sessionID
 
 	sessionDataFile, err := getSessionDataFile(s.SessionID)
-	fatalIf(err.Trace(s.SessionID), "Unable to create session data file \""+sessionDataFile+"\".")
+	FatalIf(err.Trace(s.SessionID), "Unable to create session data file \""+sessionDataFile+"\".")
 
 	dataFile, e := os.Create(sessionDataFile)
-	fatalIf(probe.NewError(e), "Unable to create session data file \""+sessionDataFile+"\".")
+	FatalIf(probe.NewError(e), "Unable to create session data file \""+sessionDataFile+"\".")
 
 	s.DataFP = &sessionDataFP{false, dataFile}
 
@@ -382,7 +382,7 @@ func isLastFactory(lastURL string) func(string) bool {
 	last := true // closure
 	return func(sourceURL string) bool {
 		if sourceURL == "" {
-			fatalIf(errInvalidArgument().Trace(), "Empty source argument passed.")
+			FatalIf(errInvalidArgument().Trace(), "Empty source argument passed.")
 		}
 		if lastURL == "" {
 			return false

@@ -75,7 +75,7 @@ EXAMPLES:
 `,
 }
 
-func pipe(targetURL string, encKeyDB map[string][]prefixSSEPair, storageClass string) *probe.Error {
+func pipe(targetURL string, encKeyDB map[string][]PrefixSSEPair, storageClass string) *probe.Error {
 	if targetURL == "" {
 		// When no target is specified, pipe cat's stdin to stdout.
 		return catOut(os.Stdin, -1).Trace()
@@ -113,19 +113,19 @@ func checkPipeSyntax(ctx *cli.Context) {
 func mainPipe(ctx *cli.Context) error {
 	// Parse encryption keys per command.
 	encKeyDB, err := getEncKeys(ctx)
-	fatalIf(err, "Unable to parse encryption keys.")
+	FatalIf(err, "Unable to parse encryption keys.")
 
 	// validate pipe input arguments.
 	checkPipeSyntax(ctx)
 
 	if len(ctx.Args()) == 0 {
 		err = pipe("", nil, ctx.String("storage-class"))
-		fatalIf(err.Trace("stdout"), "Unable to write to one or more targets.")
+		FatalIf(err.Trace("stdout"), "Unable to write to one or more targets.")
 	} else {
 		// extract URLs.
 		URLs := ctx.Args()
 		err = pipe(URLs[0], encKeyDB, ctx.String("storage-class"))
-		fatalIf(err.Trace(URLs[0]), "Unable to write to one or more targets.")
+		FatalIf(err.Trace(URLs[0]), "Unable to write to one or more targets.")
 	}
 
 	// Done.

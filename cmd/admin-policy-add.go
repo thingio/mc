@@ -77,7 +77,7 @@ func (u userPolicyMessage) String() string {
 	switch u.op {
 	case "info":
 		buf, e := json.MarshalIndent(u.PolicyJSON, "", " ")
-		fatalIf(probe.NewError(e), "Unable to parse policy")
+		FatalIf(probe.NewError(e), "Unable to parse policy")
 		return string(buf)
 	case "list":
 		policyFieldMaxLen := 20
@@ -103,7 +103,7 @@ func (u userPolicyMessage) String() string {
 func (u userPolicyMessage) JSON() string {
 	u.Status = "success"
 	jsonMessageBytes, e := json.MarshalIndent(u, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 
 	return string(jsonMessageBytes)
 }
@@ -119,16 +119,16 @@ func mainAdminPolicyAdd(ctx *cli.Context) error {
 	aliasedURL := args.Get(0)
 
 	policy, e := ioutil.ReadFile(args.Get(2))
-	fatalIf(probe.NewError(e).Trace(args...), "Unable to get policy")
+	FatalIf(probe.NewError(e).Trace(args...), "Unable to get policy")
 
 	// Create a new MinIO Admin Client
 	client, err := newAdminClient(aliasedURL)
-	fatalIf(err, "Unable to initialize admin connection.")
+	FatalIf(err, "Unable to initialize admin connection.")
 
 	iamp, e := iampolicy.ParseConfig(bytes.NewReader(policy))
-	fatalIf(probe.NewError(e).Trace(args...), "Unable to parse the input policy")
+	FatalIf(probe.NewError(e).Trace(args...), "Unable to parse the input policy")
 
-	fatalIf(probe.NewError(client.AddCannedPolicy(globalContext, args.Get(1), iamp)).Trace(args...), "Unable to add new policy")
+	FatalIf(probe.NewError(client.AddCannedPolicy(GlobalContext, args.Get(1), iamp)).Trace(args...), "Unable to add new policy")
 
 	printMsg(userPolicyMessage{
 		op:     "add",

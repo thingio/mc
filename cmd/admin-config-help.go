@@ -66,7 +66,7 @@ func (u configHelpMessage) String() string {
 	} else {
 		e = HelpEnvTemplate.Execute(w, u.Value)
 	}
-	fatalIf(probe.NewError(e), "Cannot initialize template writer")
+	FatalIf(probe.NewError(e), "Cannot initialize template writer")
 
 	w.Flush()
 
@@ -77,7 +77,7 @@ func (u configHelpMessage) String() string {
 func (u configHelpMessage) JSON() string {
 	u.Status = "success"
 	statusJSONBytes, e := json.MarshalIndent(u, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 
 	return string(statusJSONBytes)
 }

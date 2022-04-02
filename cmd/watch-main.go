@@ -114,7 +114,7 @@ type watchMessage struct {
 func (u watchMessage) JSON() string {
 	u.Status = "success"
 	watchMessageJSONBytes, e := json.MarshalIndent(u, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 	return string(watchMessageJSONBytes)
 }
 
@@ -146,9 +146,9 @@ func mainWatch(cliCtx *cli.Context) error {
 	events := strings.Split(cliCtx.String("events"), ",")
 	recursive := cliCtx.Bool("recursive")
 
-	s3Client, pErr := newClient(path)
+	s3Client, pErr := NewClient(path)
 	if pErr != nil {
-		fatalIf(pErr.Trace(), "Cannot parse the provided url.")
+		FatalIf(pErr.Trace(), "Cannot parse the provided url.")
 	}
 
 	options := WatchOptions{
@@ -158,12 +158,12 @@ func mainWatch(cliCtx *cli.Context) error {
 		Suffix:    suffix,
 	}
 
-	ctx, cancelWatch := context.WithCancel(globalContext)
+	ctx, cancelWatch := context.WithCancel(GlobalContext)
 	defer cancelWatch()
 
 	// Start watching on events
 	wo, err := s3Client.Watch(ctx, options)
-	fatalIf(err, "Cannot watch on the specified bucket.")
+	FatalIf(err, "Cannot watch on the specified bucket.")
 
 	// Initialize.. waitgroup to track the go-routine.
 	var wg sync.WaitGroup
@@ -178,7 +178,7 @@ func mainWatch(cliCtx *cli.Context) error {
 		// Wait for all events.
 		for {
 			select {
-			case <-globalContext.Done():
+			case <-GlobalContext.Done():
 				// Signal received we are done.
 				close(wo.DoneChan)
 				return

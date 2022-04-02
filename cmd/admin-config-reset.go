@@ -75,7 +75,7 @@ func (u configResetMessage) String() (msg string) {
 func (u configResetMessage) JSON() string {
 	u.Status = "success"
 	statusJSONBytes, e := json.MarshalIndent(u, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 
 	return string(statusJSONBytes)
 }
@@ -103,12 +103,12 @@ func mainAdminConfigReset(ctx *cli.Context) error {
 
 	// Create a new MinIO Admin Client
 	client, err := newAdminClient(aliasedURL)
-	fatalIf(err, "Unable to initialize admin connection.")
+	FatalIf(err, "Unable to initialize admin connection.")
 
 	if len(ctx.Args()) == 1 {
 		// Call get config API
-		hr, e := client.HelpConfigKV(globalContext, "", "", ctx.IsSet("env"))
-		fatalIf(probe.NewError(e), "Cannot get help for the sub-system")
+		hr, e := client.HelpConfigKV(GlobalContext, "", "", ctx.IsSet("env"))
+		FatalIf(probe.NewError(e), "Cannot get help for the sub-system")
 
 		// Print
 		printMsg(configHelpMessage{
@@ -121,7 +121,7 @@ func mainAdminConfigReset(ctx *cli.Context) error {
 
 	// Call reset config API
 	input := strings.Join(args.Tail(), " ")
-	fatalIf(probe.NewError(client.DelConfigKV(globalContext, input)),
+	FatalIf(probe.NewError(client.DelConfigKV(GlobalContext, input)),
 		"Cannot reset '%s' on the server", input)
 
 	// Print set config result

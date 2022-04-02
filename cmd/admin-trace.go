@@ -115,18 +115,18 @@ func mainAdminTrace(ctx *cli.Context) error {
 	// Create a new MinIO Admin Client
 	client, err := newAdminClient(aliasedURL)
 	if err != nil {
-		fatalIf(err.Trace(aliasedURL), "Cannot initialize admin client.")
+		FatalIf(err.Trace(aliasedURL), "Cannot initialize admin client.")
 		return nil
 	}
 
-	ctxt, cancel := context.WithCancel(globalContext)
+	ctxt, cancel := context.WithCancel(GlobalContext)
 	defer cancel()
 
 	// Start listening on all trace activity.
 	traceCh := client.ServiceTrace(ctxt, all, errfltr)
 	for traceInfo := range traceCh {
 		if traceInfo.Err != nil {
-			fatalIf(probe.NewError(traceInfo.Err), "Cannot listen to http trace")
+			FatalIf(probe.NewError(traceInfo.Err), "Cannot listen to http trace")
 		}
 		if verbose {
 			printMsg(traceMessage{traceInfo})
@@ -212,7 +212,7 @@ func (s shortTraceMsg) JSON() string {
 	// Disable escaping special chars to display XML tags correctly
 	enc.SetEscapeHTML(false)
 
-	fatalIf(probe.NewError(enc.Encode(s)), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(enc.Encode(s)), "Unable to marshal into JSON.")
 	return buf.String()
 }
 
@@ -297,7 +297,7 @@ func (t traceMessage) JSON() string {
 	enc.SetIndent("", " ")
 	// Disable escaping special chars to display XML tags correctly
 	enc.SetEscapeHTML(false)
-	fatalIf(probe.NewError(enc.Encode(trc)), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(enc.Encode(trc)), "Unable to marshal into JSON.")
 
 	// strip off extra newline added by json encoder
 	return strings.TrimSuffix(buf.String(), "\n")

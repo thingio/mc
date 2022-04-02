@@ -87,7 +87,7 @@ type logMessage struct {
 // JSON - jsonify loginfo
 func (l logMessage) JSON() string {
 	logJSON, err := json.MarshalIndent(&l, "", " ")
-	fatalIf(probe.NewError(err), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(err), "Unable to marshal into JSON.")
 
 	return string(logJSON)
 
@@ -182,28 +182,28 @@ func mainAdminConsole(ctx *cli.Context) error {
 	if ctx.IsSet("limit") {
 		limit = ctx.Int("limit")
 		if limit <= 0 {
-			fatalIf(errInvalidArgument().Trace(ctx.Args()...), "please set a proper limit, for example: '--limit 5' to display last 5 logs, omit this flag to display all available logs")
+			FatalIf(errInvalidArgument().Trace(ctx.Args()...), "please set a proper limit, for example: '--limit 5' to display last 5 logs, omit this flag to display all available logs")
 		}
 	}
 	logType := strings.ToLower(ctx.String("type"))
 	if logType != "minio" && logType != "application" && logType != "all" {
-		fatalIf(errInvalidArgument().Trace(ctx.Args()...), "Invalid value for --type flag. Valid options are [minio, application, all]")
+		FatalIf(errInvalidArgument().Trace(ctx.Args()...), "Invalid value for --type flag. Valid options are [minio, application, all]")
 	}
 	// Create a new MinIO Admin Client
 	client, err := newAdminClient(aliasedURL)
 	if err != nil {
-		fatalIf(err.Trace(aliasedURL), "Cannot initialize admin client.")
+		FatalIf(err.Trace(aliasedURL), "Cannot initialize admin client.")
 		return nil
 	}
 
-	ctxt, cancel := context.WithCancel(globalContext)
+	ctxt, cancel := context.WithCancel(GlobalContext)
 	defer cancel()
 
 	// Start listening on all console log activity.
 	logCh := client.GetLogs(ctxt, node, limit, logType)
 	for logInfo := range logCh {
 		if logInfo.Err != nil {
-			fatalIf(probe.NewError(logInfo.Err), "Cannot listen to console logs")
+			FatalIf(probe.NewError(logInfo.Err), "Cannot listen to console logs")
 		}
 		// drop nodeName from output if specified as cli arg
 		if node != "" {

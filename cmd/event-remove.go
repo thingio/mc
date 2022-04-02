@@ -80,7 +80,7 @@ func checkEventRemoveSyntax(ctx *cli.Context) {
 		cli.ShowCommandHelpAndExit(ctx, "remove", 1) // last argument is exit code
 	}
 	if len(ctx.Args()) == 1 && !ctx.Bool("force") {
-		fatalIf(probe.NewError(errors.New("")), "--force flag needs to be passed to remove all bucket notifications.")
+		FatalIf(probe.NewError(errors.New("")), "--force flag needs to be passed to remove all bucket notifications.")
 	}
 }
 
@@ -94,7 +94,7 @@ type eventRemoveMessage struct {
 func (u eventRemoveMessage) JSON() string {
 	u.Status = "success"
 	eventRemoveMessageJSONBytes, e := json.MarshalIndent(u, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 	return string(eventRemoveMessageJSONBytes)
 }
 
@@ -104,7 +104,7 @@ func (u eventRemoveMessage) String() string {
 }
 
 func mainEventRemove(cliCtx *cli.Context) error {
-	ctx, cancelEventRemove := context.WithCancel(globalContext)
+	ctx, cancelEventRemove := context.WithCancel(GlobalContext)
 	defer cancelEventRemove()
 
 	console.SetColor("Event", color.New(color.FgGreen, color.Bold))
@@ -119,14 +119,14 @@ func mainEventRemove(cliCtx *cli.Context) error {
 		arn = args.Get(1)
 	}
 
-	client, err := newClient(path)
+	client, err := NewClient(path)
 	if err != nil {
-		fatalIf(err.Trace(), "Cannot parse the provided url.")
+		FatalIf(err.Trace(), "Cannot parse the provided url.")
 	}
 
 	s3Client, ok := client.(*S3Client)
 	if !ok {
-		fatalIf(errDummy().Trace(), "The provided url doesn't point to a S3 server.")
+		FatalIf(errDummy().Trace(), "The provided url doesn't point to a S3 server.")
 	}
 
 	// flags for the attributes of the even
@@ -137,9 +137,9 @@ func mainEventRemove(cliCtx *cli.Context) error {
 	err = s3Client.RemoveNotificationConfig(ctx, arn, event, prefix, suffix)
 	if err != nil {
 		if err.Cause == minio.ErrNoNotificationConfigMatch {
-			fatalIf(err, "Remove event failed.")
+			FatalIf(err, "Remove event failed.")
 		}
-		fatalIf(err, "Cannot disable notification on the specified bucket.")
+		FatalIf(err, "Cannot disable notification on the specified bucket.")
 	}
 
 	printMsg(eventRemoveMessage{ARN: arn})

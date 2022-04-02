@@ -137,7 +137,7 @@ func (s stopHealMessage) String() string {
 // JSON jsonified stop heal message.
 func (s stopHealMessage) JSON() string {
 	stopHealJSONBytes, e := json.MarshalIndent(s, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 
 	return string(stopHealJSONBytes)
 }
@@ -174,7 +174,7 @@ func (s backgroundHealStatusMessage) String() string {
 // JSON jsonified stop heal message.
 func (s backgroundHealStatusMessage) JSON() string {
 	healJSONBytes, e := json.MarshalIndent(s, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 
 	return string(healJSONBytes)
 }
@@ -207,7 +207,7 @@ func mainAdminHeal(ctx *cli.Context) error {
 	// Create a new MinIO Admin Client
 	client, err := newAdminClient(aliasedURL)
 	if err != nil {
-		fatalIf(err.Trace(aliasedURL), "Cannot initialize admin client.")
+		FatalIf(err.Trace(aliasedURL), "Cannot initialize admin client.")
 		return nil
 	}
 
@@ -216,14 +216,14 @@ func mainAdminHeal(ctx *cli.Context) error {
 	splits := splitStr(aliasedURL, "/", 3)
 	bucket, prefix := splits[1], splits[2]
 
-	clnt, err := newClient(aliasedURL)
+	clnt, err := NewClient(aliasedURL)
 	if err != nil {
-		fatalIf(err.Trace(clnt.GetURL().String()), "Unable to create client for URL ", aliasedURL)
+		FatalIf(err.Trace(clnt.GetURL().String()), "Unable to create client for URL ", aliasedURL)
 		return nil
 	}
-	for content := range clnt.List(globalContext, false, false, false, DirNone) {
+	for content := range clnt.List(GlobalContext, false, false, false, DirNone) {
 		if content.Err != nil {
-			fatalIf(content.Err.Trace(clnt.GetURL().String()), "Unable to heal bucket `"+bucket+"`.")
+			FatalIf(content.Err.Trace(clnt.GetURL().String()), "Unable to heal bucket `"+bucket+"`.")
 			return nil
 		}
 	}
@@ -231,8 +231,8 @@ func mainAdminHeal(ctx *cli.Context) error {
 	// Return the background heal status when the user
 	// doesn't pass a bucket or --recursive flag.
 	if bucket == "" && !ctx.Bool("recursive") {
-		bgHealStatus, berr := client.BackgroundHealStatus(globalContext)
-		fatalIf(probe.NewError(berr), "Failed to get the status of the background heal.")
+		bgHealStatus, berr := client.BackgroundHealStatus(GlobalContext)
+		FatalIf(probe.NewError(berr), "Failed to get the status of the background heal.")
 		printMsg(backgroundHealStatusMessage{Status: "success", HealInfo: bgHealStatus})
 		return nil
 	}
@@ -247,14 +247,14 @@ func mainAdminHeal(ctx *cli.Context) error {
 	forceStart := ctx.Bool("force-start")
 	forceStop := ctx.Bool("force-stop")
 	if forceStop {
-		_, _, herr := client.Heal(globalContext, bucket, prefix, opts, "", forceStart, forceStop)
-		fatalIf(probe.NewError(herr), "Failed to stop heal sequence.")
+		_, _, herr := client.Heal(GlobalContext, bucket, prefix, opts, "", forceStart, forceStop)
+		FatalIf(probe.NewError(herr), "Failed to stop heal sequence.")
 		printMsg(stopHealMessage{Status: "success", Alias: aliasedURL})
 		return nil
 	}
 
-	healStart, _, herr := client.Heal(globalContext, bucket, prefix, opts, "", forceStart, false)
-	fatalIf(probe.NewError(herr), "Failed to start heal sequence.")
+	healStart, _, herr := client.Heal(GlobalContext, bucket, prefix, opts, "", forceStart, false)
+	FatalIf(probe.NewError(herr), "Failed to start heal sequence.")
 
 	ui := uiData{
 		Bucket:                bucket,
@@ -273,9 +273,9 @@ func mainAdminHeal(ctx *cli.Context) error {
 		if res.FailureDetail != "" {
 			data, _ := json.MarshalIndent(res, "", " ")
 			traceStr := string(data)
-			fatalIf(probe.NewError(e).Trace(aliasedURL, traceStr), "Unable to display heal status.")
+			FatalIf(probe.NewError(e).Trace(aliasedURL, traceStr), "Unable to display heal status.")
 		} else {
-			fatalIf(probe.NewError(e).Trace(aliasedURL), "Unable to display heal status.")
+			FatalIf(probe.NewError(e).Trace(aliasedURL), "Unable to display heal status.")
 		}
 	}
 	return nil

@@ -67,7 +67,7 @@ func mainAdminGroupRemove(ctx *cli.Context) error {
 
 	// Create a new MinIO Admin Client
 	client, err := newAdminClient(aliasedURL)
-	fatalIf(err, "Unable to initialize admin connection.")
+	FatalIf(err, "Unable to initialize admin connection.")
 
 	members := []string{}
 	for i := 2; i < ctx.NArg(); i++ {
@@ -79,8 +79,8 @@ func mainAdminGroupRemove(ctx *cli.Context) error {
 		IsRemove: true,
 	}
 
-	e := client.UpdateGroupMembers(globalContext, gAddRemove)
-	fatalIf(probe.NewError(e).Trace(args...), "Could not perform remove operation")
+	e := client.UpdateGroupMembers(GlobalContext, gAddRemove)
+	FatalIf(probe.NewError(e).Trace(args...), "Could not perform remove operation")
 
 	printMsg(groupMessage{
 		op:        "remove",

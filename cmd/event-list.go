@@ -75,7 +75,7 @@ type eventListMessage struct {
 func (u eventListMessage) JSON() string {
 	u.Status = "success"
 	eventListMessageJSONBytes, e := json.MarshalIndent(u, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 	return string(eventListMessageJSONBytes)
 }
 
@@ -98,7 +98,7 @@ func (u eventListMessage) String() string {
 }
 
 func mainEventList(cliCtx *cli.Context) error {
-	ctx, cancelEventList := context.WithCancel(globalContext)
+	ctx, cancelEventList := context.WithCancel(GlobalContext)
 	defer cancelEventList()
 
 	console.SetColor("ARN", color.New(color.FgGreen, color.Bold))
@@ -114,18 +114,18 @@ func mainEventList(cliCtx *cli.Context) error {
 		arn = args[1]
 	}
 
-	client, err := newClient(path)
+	client, err := NewClient(path)
 	if err != nil {
-		fatalIf(err.Trace(), "Cannot parse the provided url.")
+		FatalIf(err.Trace(), "Cannot parse the provided url.")
 	}
 
 	s3Client, ok := client.(*S3Client)
 	if !ok {
-		fatalIf(errDummy().Trace(), "The provided url doesn't point to a S3 server.")
+		FatalIf(errDummy().Trace(), "The provided url doesn't point to a S3 server.")
 	}
 
 	configs, err := s3Client.ListNotificationConfigs(ctx, arn)
-	fatalIf(err, "Cannot list notifications on the specified bucket.")
+	FatalIf(err, "Cannot list notifications on the specified bucket.")
 
 	for _, config := range configs {
 		printMsg(eventListMessage{

@@ -89,26 +89,26 @@ func (m lockCmdMessage) String() string {
 // JSON'ified message for scripting.
 func (m lockCmdMessage) JSON() string {
 	msgBytes, e := json.MarshalIndent(m, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 	return string(msgBytes)
 }
 
 // lock - set/get object lock configuration.
 func lock(urlStr string, mode minio.RetentionMode, validity uint64, unit minio.ValidityUnit, clearLock bool) error {
-	client, err := newClient(urlStr)
+	client, err := NewClient(urlStr)
 	if err != nil {
-		fatalIf(err.Trace(), "Cannot parse the provided url.")
+		FatalIf(err.Trace(), "Cannot parse the provided url.")
 	}
 
-	ctx, cancelLock := context.WithCancel(globalContext)
+	ctx, cancelLock := context.WithCancel(GlobalContext)
 	defer cancelLock()
 
 	if clearLock || mode != "" {
 		err = client.SetObjectLockConfig(ctx, mode, validity, unit)
-		fatalIf(err, "Cannot enable object lock configuration on the specified bucket.")
+		FatalIf(err, "Cannot enable object lock configuration on the specified bucket.")
 	} else {
 		mode, validity, unit, err = client.GetObjectLockConfig(ctx)
-		fatalIf(err, "Cannot get object lock configuration on the specified bucket.")
+		FatalIf(err, "Cannot get object lock configuration on the specified bucket.")
 	}
 
 	printMsg(lockCmdMessage{
@@ -168,13 +168,13 @@ func mainLock(ctx *cli.Context) error {
 	case 3:
 		urlStr = args[0]
 		if clearLock {
-			fatalIf(errInvalidArgument().Trace(urlStr), "clear flag must be passed with target alone")
+			FatalIf(errInvalidArgument().Trace(urlStr), "clear flag must be passed with target alone")
 		}
 
 		mode = minio.RetentionMode(strings.ToUpper(args[1]))
 		validity, unit, err = parseRetentionValidity(args[2], mode)
 		if err != nil {
-			fatalIf(err.Trace(args...), "unable to parse input arguments")
+			FatalIf(err.Trace(args...), "unable to parse input arguments")
 		}
 	default:
 		cli.ShowCommandHelpAndExit(ctx, "lock", 1)

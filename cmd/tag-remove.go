@@ -67,7 +67,7 @@ func (t tagRemoveMessage) String() string {
 // JSON tagRemoveMessage.
 func (t tagRemoveMessage) JSON() string {
 	msgBytes, e := json.MarshalIndent(t, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 	return string(msgBytes)
 }
 func checkRemoveTagSyntax(ctx *cli.Context) {
@@ -77,7 +77,7 @@ func checkRemoveTagSyntax(ctx *cli.Context) {
 }
 
 func mainRemoveTag(cliCtx *cli.Context) error {
-	ctx, cancelList := context.WithCancel(globalContext)
+	ctx, cancelList := context.WithCancel(GlobalContext)
 	defer cancelList()
 
 	checkRemoveTagSyntax(cliCtx)
@@ -85,10 +85,10 @@ func mainRemoveTag(cliCtx *cli.Context) error {
 	console.SetColor("Remove", color.New(color.FgGreen))
 
 	targetURL := cliCtx.Args().Get(0)
-	clnt, pErr := newClient(targetURL)
-	fatalIf(pErr, "Unable to initialize target "+targetURL)
+	clnt, pErr := NewClient(targetURL)
+	FatalIf(pErr, "Unable to initialize target "+targetURL)
 	pErr = clnt.DeleteTags(ctx)
-	fatalIf(pErr, "Unable to remove tags for "+targetURL)
+	FatalIf(pErr, "Unable to remove tags for "+targetURL)
 
 	printMsg(tagRemoveMessage{
 		Status: "success",

@@ -63,10 +63,10 @@ func mainAdminUserRemove(ctx *cli.Context) error {
 
 	// Create a new MinIO Admin Client
 	client, err := newAdminClient(aliasedURL)
-	fatalIf(err, "Unable to initialize admin connection.")
+	FatalIf(err, "Unable to initialize admin connection.")
 
-	e := client.RemoveUser(globalContext, args.Get(1))
-	fatalIf(probe.NewError(e).Trace(args...), "Cannot remove %s", args.Get(1))
+	e := client.RemoveUser(GlobalContext, args.Get(1))
+	FatalIf(probe.NewError(e).Trace(args...), "Cannot remove %s", args.Get(1))
 
 	printMsg(userMessage{
 		op:        "remove",

@@ -197,7 +197,7 @@ func (u clusterStruct) String() (msg string) {
 // JSON jsonifies service status message.
 func (u clusterStruct) JSON() string {
 	statusJSONBytes, e := json.MarshalIndent(u, "", "    ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 
 	return string(statusJSONBytes)
 }
@@ -218,11 +218,11 @@ func mainAdminInfo(ctx *cli.Context) error {
 
 	// Create a new MinIO Admin Client
 	client, err := newAdminClient(aliasedURL)
-	fatalIf(err, "Unable to initialize admin connection.")
+	FatalIf(err, "Unable to initialize admin connection.")
 
 	var clusterInfo clusterStruct
 	// Fetch info of all servers (cluster or single server)
-	admInfo, e := client.ServerInfo(globalContext)
+	admInfo, e := client.ServerInfo(GlobalContext)
 	if e != nil {
 		clusterInfo.Status = "error"
 		clusterInfo.Error = e.Error()
