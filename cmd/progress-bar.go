@@ -35,7 +35,7 @@ type progressBar struct {
 // newProgressBar - instantiate a progress bar.
 func newProgressBar(total int64) *progressBar {
 	// Progress bar speific theme customization.
-	console.SetColor("Bar", color.New(color.FgGreen, color.Bold))
+	console.SetColor("Bar", color.New(color.FgHiWhite, color.Bold))
 
 	pgbar := progressBar{}
 

@@ -45,7 +45,7 @@ const (
 )
 
 var (
-	globalQuiet    = false // Quiet flag set via command line
+	globalQuiet    = true  // Quiet flag set via command line
 	globalJSON     = false // Json flag set via command line
 	globalDebug    = false // Debug flag set via command line
 	globalNoColor  = false // No Color flag set via command line

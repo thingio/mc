@@ -436,7 +436,7 @@ func doCopySession(ctx context.Context, cancelCopy context.CancelFunc, cli *cli.
 	go func() {
 		gracefulStop := func() {
 			close(queueCh)
-			parallel.wait()
+			parallel.Wait()
 			close(statusCh)
 		}
 

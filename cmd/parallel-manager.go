@@ -135,7 +135,7 @@ func (p *ParallelManager) monitorProgress() {
 }
 
 // Wait for all workers to finish tasks before shutting down Parallel
-func (p *ParallelManager) wait() {
+func (p *ParallelManager) Wait() {
 	p.wg.Wait()
 	close(p.stopMonitorCh)
 }
