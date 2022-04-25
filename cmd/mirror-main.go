@@ -23,6 +23,7 @@ import (
 	"path"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -351,8 +352,11 @@ func (mj *MirrorJob) doMirror(ctx context.Context, sURLs URLs) URLs {
 	}
 
 	// Initialize additional target user metadata.
-	sURLs.TargetContent.UserMetadata = mj.Opts.UserMetadata
-
+	//会自动将中间字母小写
+	//sURLs.TargetContent.UserMetadata = mj.Opts.UserMetadata
+	sURLs.TargetContent.UserMetadata = map[string]string{
+		"Filesize":strconv.FormatInt(sURLs.SourceContent.Size, 10),
+	}
 	sourcePath := filepath.ToSlash(filepath.Join(sourceAlias, sourceURL.Path))
 	targetPath := filepath.ToSlash(filepath.Join(targetAlias, targetURL.Path))
 	mj.Status.PrintMsg(mirrorMessage{
