@@ -68,7 +68,7 @@ func defaultMCConfigDir() string {
 // mustGetMcConfigDir - construct MinIO Client config folder or fail
 func mustGetMcConfigDir() (configDir string) {
 	configDir, err := getMcConfigDir()
-	fatalIf(err.Trace(), "Unable to get mcConfigDir.")
+	FatalIf(err.Trace(), "Unable to get mcConfigDir.")
 
 	return configDir
 }
@@ -100,7 +100,7 @@ func getMcConfigPath() (string, *probe.Error) {
 // mustGetMcConfigPath - similar to getMcConfigPath, ignores errors
 func mustGetMcConfigPath() string {
 	path, err := getMcConfigPath()
-	fatalIf(err.Trace(), "Unable to get mcConfigPath.")
+	FatalIf(err.Trace(), "Unable to get mcConfigPath.")
 
 	return path
 }
@@ -173,7 +173,7 @@ func isValidAlias(alias string) bool {
 }
 
 // getHostConfig retrieves host specific configuration such as access keys, signature type.
-func getHostConfig(alias string) (*hostConfigV9, *probe.Error) {
+func getHostConfig(alias string) (*HostConfigV9, *probe.Error) {
 	mcCfg, err := loadMcConfig()
 	if err != nil {
 		return nil, err.Trace(alias)
@@ -190,7 +190,7 @@ func getHostConfig(alias string) (*hostConfigV9, *probe.Error) {
 }
 
 // mustGetHostConfig retrieves host specific configuration such as access keys, signature type.
-func mustGetHostConfig(alias string) *hostConfigV9 {
+func mustGetHostConfig(alias string) *HostConfigV9 {
 	hostCfg, _ := getHostConfig(alias)
 	// If alias is not found,
 	// look for it in the environment variable.
@@ -265,13 +265,13 @@ const (
 	mcEnvHostsDeprecatedPrefix = "MC_HOSTS_"
 )
 
-func expandAliasFromEnv(envURL string) (*hostConfigV9, *probe.Error) {
+func expandAliasFromEnv(envURL string) (*HostConfigV9, *probe.Error) {
 	u, accessKey, secretKey, sessionToken, err := parseEnvURLStr(envURL)
 	if err != nil {
 		return nil, err.Trace(envURL)
 	}
 
-	return &hostConfigV9{
+	return &HostConfigV9{
 		URL:          u.String(),
 		API:          "S3v4",
 		AccessKey:    accessKey,
@@ -281,7 +281,7 @@ func expandAliasFromEnv(envURL string) (*hostConfigV9, *probe.Error) {
 }
 
 // expandAlias expands aliased URL if any match is found, returns as is otherwise.
-func expandAlias(aliasedURL string) (alias string, urlStr string, hostCfg *hostConfigV9, err *probe.Error) {
+func expandAlias(aliasedURL string) (alias string, urlStr string, hostCfg *HostConfigV9, err *probe.Error) {
 	// Extract alias from the URL.
 	alias, path := url2Alias(aliasedURL)
 
@@ -311,7 +311,7 @@ func expandAlias(aliasedURL string) (alias string, urlStr string, hostCfg *hostC
 }
 
 // mustExpandAlias expands aliased URL if any match is found, returns as is otherwise.
-func mustExpandAlias(aliasedURL string) (alias string, urlStr string, hostCfg *hostConfigV9) {
+func mustExpandAlias(aliasedURL string) (alias string, urlStr string, hostCfg *HostConfigV9) {
 	alias, urlStr, hostCfg, _ = expandAlias(aliasedURL)
 	return alias, urlStr, hostCfg
 }

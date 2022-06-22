@@ -51,13 +51,13 @@ func checkConfigHostRemoveSyntax(ctx *cli.Context) {
 	args := ctx.Args()
 
 	if len(ctx.Args()) != 1 {
-		fatalIf(errInvalidArgument().Trace(args...),
+		FatalIf(errInvalidArgument().Trace(args...),
 			"Incorrect number of arguments for remove host command.")
 	}
 
 	alias := cleanAlias(args.Get(0))
 	if !isValidAlias(alias) {
-		fatalIf(errDummy().Trace(alias), "Invalid alias `"+alias+"`.")
+		FatalIf(errDummy().Trace(alias), "Invalid alias `"+alias+"`.")
 	}
 }
 
@@ -76,13 +76,13 @@ func mainConfigHostRemove(ctx *cli.Context) error {
 // removeHost - removes a host.
 func removeHost(alias string) {
 	conf, err := loadMcConfig()
-	fatalIf(err.Trace(globalMCConfigVersion), "Unable to load config version `"+globalMCConfigVersion+"`.")
+	FatalIf(err.Trace(globalMCConfigVersion), "Unable to load config version `"+globalMCConfigVersion+"`.")
 
 	// Remove host.
 	delete(conf.Hosts, alias)
 
 	err = saveMcConfig(conf)
-	fatalIf(err.Trace(alias), "Unable to save deleted hosts in config version `"+globalMCConfigVersion+"`.")
+	FatalIf(err.Trace(alias), "Unable to save deleted hosts in config version `"+globalMCConfigVersion+"`.")
 
 	printMsg(hostMessage{op: "remove", Alias: alias})
 }

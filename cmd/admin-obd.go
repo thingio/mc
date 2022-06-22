@@ -83,7 +83,7 @@ func (u clusterOBDStruct) String() string {
 	u.Status = ""
 	data, err := json.Marshal(u)
 	if err != nil {
-		fatalIf(probe.NewError(err), "unable to marshal into JSON.")
+		FatalIf(probe.NewError(err), "unable to marshal into JSON.")
 	}
 	return string(data)
 }
@@ -91,7 +91,7 @@ func (u clusterOBDStruct) String() string {
 // JSON jsonifies service status message.
 func (u clusterOBDStruct) JSON() string {
 	statusJSONBytes, e := json.MarshalIndent(u, " ", "    ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 
 	return string(statusJSONBytes)
 }
@@ -160,11 +160,11 @@ func mainAdminOBD(ctx *cli.Context) error {
 
 	// Create a new MinIO Admin Client
 	client, err := newAdminClient(aliasedURL)
-	fatalIf(err, "Unable to initialize admin connection.")
+	FatalIf(err, "Unable to initialize admin connection.")
 
 	spinners := []string{"/", "|", "\\", "--", "|"}
 
-	cont, cancel := context.WithCancel(globalContext)
+	cont, cancel := context.WithCancel(GlobalContext)
 	defer cancel()
 
 	startSpinner := func(s string) func() {

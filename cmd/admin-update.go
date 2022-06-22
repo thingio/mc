@@ -73,7 +73,7 @@ func (s serverUpdateMessage) String() string {
 // JSON jsonified server update message.
 func (s serverUpdateMessage) JSON() string {
 	serverUpdateJSONBytes, e := json.MarshalIndent(s, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 
 	return string(serverUpdateJSONBytes)
 }
@@ -97,14 +97,14 @@ func mainAdminServerUpdate(ctx *cli.Context) error {
 	aliasedURL := args.Get(0)
 
 	client, err := newAdminClient(aliasedURL)
-	fatalIf(err, "Unable to initialize admin connection.")
+	FatalIf(err, "Unable to initialize admin connection.")
 
 	updateURL := args.Get(1)
 
 	// Update the specified MinIO server, optionally also
 	// with the provided update URL.
-	us, e := client.ServerUpdate(globalContext, updateURL)
-	fatalIf(probe.NewError(e), "Unable to update the server.")
+	us, e := client.ServerUpdate(GlobalContext, updateURL)
+	FatalIf(probe.NewError(e), "Unable to update the server.")
 
 	// Success..
 	printMsg(serverUpdateMessage{

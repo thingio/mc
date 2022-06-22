@@ -114,7 +114,7 @@ func (i ilmAddMessage) String() string {
 
 func (i ilmAddMessage) JSON() string {
 	msgBytes, e := json.MarshalIndent(i, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 	return string(msgBytes)
 }
 
@@ -126,13 +126,13 @@ func checkILMAddSyntax(ctx *cli.Context) {
 
 	id := ctx.String("id")
 	if id == "" {
-		fatalIf(errInvalidArgument(), "ID for lifecycle rule cannot be empty, please refer mc "+ctx.Command.FullName()+" --help for more details")
+		FatalIf(errInvalidArgument(), "ID for lifecycle rule cannot be empty, please refer mc "+ctx.Command.FullName()+" --help for more details")
 	}
 }
 
 // Calls SetBucketLifecycle with the XML representation of lifecycleConfiguration type.
 func mainILMAdd(cliCtx *cli.Context) error {
-	ctx, cancelILMAdd := context.WithCancel(globalContext)
+	ctx, cancelILMAdd := context.WithCancel(GlobalContext)
 	defer cancelILMAdd()
 
 	checkILMAddSyntax(cliCtx)
@@ -140,19 +140,19 @@ func mainILMAdd(cliCtx *cli.Context) error {
 	args := cliCtx.Args()
 	urlStr := args.Get(0)
 
-	client, err := newClient(urlStr)
-	fatalIf(err.Trace(urlStr), "Unable to initialize client for "+urlStr)
+	client, err := NewClient(urlStr)
+	FatalIf(err.Trace(urlStr), "Unable to initialize client for "+urlStr)
 
 	// Configuration that is already set.
 	lfcCfg, err := client.GetLifecycle(ctx)
-	fatalIf(err.Trace(args...), "Unable to fetch lifecycle rules for "+urlStr)
+	FatalIf(err.Trace(args...), "Unable to fetch lifecycle rules for "+urlStr)
 
 	// Configuration that needs to be set is returned by ilm.GetILMConfigToSet.
 	// A new rule is added or the rule (if existing) is replaced
 	lfcCfg, err = ilm.ApplyNewILMConfig(cliCtx, lfcCfg)
-	fatalIf(err.Trace(args...), "Unable to generate new lifecyle rules for the input")
+	FatalIf(err.Trace(args...), "Unable to generate new lifecyle rules for the input")
 
-	fatalIf(client.SetLifecycle(ctx, lfcCfg).Trace(urlStr), "Unable to set new lifecycle rules")
+	FatalIf(client.SetLifecycle(ctx, lfcCfg).Trace(urlStr), "Unable to set new lifecycle rules")
 
 	printMsg(ilmAddMessage{
 		Status: "success",

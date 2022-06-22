@@ -90,7 +90,7 @@ func (u lockMessage) String() string {
 func (u lockMessage) JSON() string {
 	u.Status = "success"
 	statusJSONBytes, e := json.MarshalIndent(u, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 	return string(statusJSONBytes)
 }
 
@@ -111,11 +111,11 @@ func mainAdminTopLocks(ctx *cli.Context) error {
 
 	// Create a new MinIO Admin Client
 	client, err := newAdminClient(aliasedURL)
-	fatalIf(err, "Unable to initialize admin connection.")
+	FatalIf(err, "Unable to initialize admin connection.")
 
 	// Call top locks API
-	entries, e := client.TopLocks(globalContext)
-	fatalIf(probe.NewError(e), "Cannot get server locks list.")
+	entries, e := client.TopLocks(GlobalContext)
+	FatalIf(probe.NewError(e), "Cannot get server locks list.")
 
 	console.SetColor("StaleLock", color.New(color.FgRed, color.Bold))
 	console.SetColor("Lock", color.New(color.FgBlue, color.Bold))

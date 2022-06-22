@@ -63,10 +63,10 @@ func mainAdminUserInfo(ctx *cli.Context) error {
 
 	// Create a new MinIO Admin Client
 	client, err := newAdminClient(aliasedURL)
-	fatalIf(err, "Unable to initialize admin connection.")
+	FatalIf(err, "Unable to initialize admin connection.")
 
-	user, e := client.GetUserInfo(globalContext, args.Get(1))
-	fatalIf(probe.NewError(e).Trace(args...), "Cannot get user info")
+	user, e := client.GetUserInfo(GlobalContext, args.Get(1))
+	FatalIf(probe.NewError(e).Trace(args...), "Cannot get user info")
 
 	printMsg(userMessage{
 		op:         "info",

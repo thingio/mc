@@ -97,13 +97,13 @@ func mainAdminPolicySet(ctx *cli.Context) error {
 	entityArg := args.Get(2)
 
 	userOrGroup, isGroup, e1 := parseEntityArg(entityArg)
-	fatalIf(probe.NewError(e1).Trace(args...), "Bad last argument")
+	FatalIf(probe.NewError(e1).Trace(args...), "Bad last argument")
 
 	// Create a new MinIO Admin Client
 	client, err := newAdminClient(aliasedURL)
-	fatalIf(err, "Unable to initialize admin connection.")
+	FatalIf(err, "Unable to initialize admin connection.")
 
-	e := client.SetPolicy(globalContext, policyName, userOrGroup, isGroup)
+	e := client.SetPolicy(GlobalContext, policyName, userOrGroup, isGroup)
 
 	if e == nil {
 		printMsg(userPolicyMessage{
@@ -113,7 +113,7 @@ func mainAdminPolicySet(ctx *cli.Context) error {
 			IsGroup:     isGroup,
 		})
 	} else {
-		fatalIf(probe.NewError(e), "Cannot set the policy")
+		FatalIf(probe.NewError(e), "Cannot set the policy")
 	}
 	return nil
 }

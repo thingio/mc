@@ -83,23 +83,23 @@ func checkShareUploadSyntax(ctx *cli.Context) {
 	if expireArg != "" {
 		var e error
 		expiry, e = time.ParseDuration(expireArg)
-		fatalIf(probe.NewError(e), "Unable to parse expire=`"+expireArg+"`.")
+		FatalIf(probe.NewError(e), "Unable to parse expire=`"+expireArg+"`.")
 	}
 
 	// Validate expiry.
 	if expiry.Seconds() < 1 {
-		fatalIf(errDummy().Trace(expiry.String()),
+		FatalIf(errDummy().Trace(expiry.String()),
 			"Expiry cannot be lesser than 1 second.")
 	}
 	if expiry.Seconds() > 604800 {
-		fatalIf(errDummy().Trace(expiry.String()),
+		FatalIf(errDummy().Trace(expiry.String()),
 			"Expiry cannot be larger than 7 days.")
 	}
 
 	for _, targetURL := range ctx.Args() {
 		url := newClientURL(targetURL)
 		if strings.HasSuffix(targetURL, string(url.Separator)) && !isRecursive {
-			fatalIf(errInvalidArgument().Trace(targetURL),
+			FatalIf(errInvalidArgument().Trace(targetURL),
 				"Use --recursive flag to generate curl command for prefixes.")
 		}
 	}
@@ -143,7 +143,7 @@ func saveSharedURL(objectURL string, shareURL string, expiry time.Duration, cont
 
 // doShareUploadURL uploads files to the target.
 func doShareUploadURL(objectURL string, isRecursive bool, expiry time.Duration, contentType string) *probe.Error {
-	clnt, err := newClient(objectURL)
+	clnt, err := NewClient(objectURL)
 	if err != nil {
 		return err.Trace(objectURL)
 	}
@@ -194,7 +194,7 @@ func mainShareUpload(ctx *cli.Context) error {
 	if expireArg != "" {
 		var e error
 		expiry, e = time.ParseDuration(expireArg)
-		fatalIf(probe.NewError(e), "Unable to parse expire=`"+expireArg+"`.")
+		FatalIf(probe.NewError(e), "Unable to parse expire=`"+expireArg+"`.")
 	}
 
 	for _, targetURL := range ctx.Args() {
@@ -202,9 +202,9 @@ func mainShareUpload(ctx *cli.Context) error {
 		if err != nil {
 			switch err.ToGoError().(type) {
 			case APINotImplemented:
-				fatalIf(err.Trace(), "Unable to share a non S3 url `"+targetURL+"`.")
+				FatalIf(err.Trace(), "Unable to share a non S3 url `"+targetURL+"`.")
 			default:
-				fatalIf(err.Trace(targetURL), "Unable to generate curl command for upload `"+targetURL+"`.")
+				FatalIf(err.Trace(targetURL), "Unable to generate curl command for upload `"+targetURL+"`.")
 			}
 		}
 	}

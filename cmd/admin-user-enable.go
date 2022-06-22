@@ -64,10 +64,10 @@ func mainAdminUserEnable(ctx *cli.Context) error {
 
 	// Create a new MinIO Admin Client
 	client, err := newAdminClient(aliasedURL)
-	fatalIf(err, "Unable to initialize admin connection.")
+	FatalIf(err, "Unable to initialize admin connection.")
 
-	e := client.SetUserStatus(globalContext, args.Get(1), madmin.AccountEnabled)
-	fatalIf(probe.NewError(e).Trace(args...), "Cannot enable user")
+	e := client.SetUserStatus(GlobalContext, args.Get(1), madmin.AccountEnabled)
+	FatalIf(probe.NewError(e).Trace(args...), "Cannot enable user")
 
 	printMsg(userMessage{
 		op:        "enable",

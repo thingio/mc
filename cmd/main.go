@@ -113,7 +113,7 @@ func Main(args []string) {
 	}
 
 	// Monitor OS exit signals and cancel the global context in such case
-	go trapSignals(os.Interrupt, syscall.SIGTERM, syscall.SIGKILL)
+	go TrapSignals(os.Interrupt, syscall.SIGTERM, syscall.SIGKILL)
 
 	// Run the app - exit on error.
 	if err := registerApp(appName).Run(args); err != nil {
@@ -136,17 +136,17 @@ func commandNotFound(ctx *cli.Context, command string) {
 			}
 		}
 	}
-	fatalIf(errDummy().Trace(), msg)
+	FatalIf(errDummy().Trace(), msg)
 }
 
 // Check for sane config environment early on and gracefully report.
-func checkConfig() {
+func CheckConfig() {
 	// Refresh the config once.
 	loadMcConfig = loadMcConfigFactory()
 	// Ensures config file is sane.
 	config, err := loadMcConfig()
 	// Verify if the path is accesible before validating the config
-	fatalIf(err.Trace(mustGetMcConfigPath()), "Unable to access configuration file.")
+	FatalIf(err.Trace(mustGetMcConfigPath()), "Unable to access configuration file.")
 
 	// Validate and print error messges
 	ok, errMsgs := validateConfigFile(config)
@@ -181,7 +181,7 @@ func migrate() {
 // Returns a map of current os/arch/platform/memstats.
 func getSystemData() map[string]string {
 	host, e := os.Hostname()
-	fatalIf(probe.NewError(e), "Unable to determine the hostname.")
+	FatalIf(probe.NewError(e), "Unable to determine the hostname.")
 
 	memstats := &runtime.MemStats{}
 	runtime.ReadMemStats(memstats)
@@ -199,12 +199,12 @@ func getSystemData() map[string]string {
 	}
 }
 
-// initMC - initialize 'mc'.
-func initMC() {
+// InitMC - initialize 'mc'.
+func InitMC() {
 	// Check if mc config exists.
 	if !isMcConfigExists() {
 		err := saveMcConfig(newMcConfig())
-		fatalIf(err.Trace(), "Unable to save new mc config.")
+		FatalIf(err.Trace(), "Unable to save new mc config.")
 
 		if !globalQuiet && !globalJSON {
 			console.Infoln("Configuration written to `" + mustGetMcConfigPath() + "`. Please update your access credentials.")
@@ -213,7 +213,7 @@ func initMC() {
 
 	// Check if mc session directory exists.
 	if !isSessionDirExists() {
-		fatalIf(createSessionDir().Trace(), "Unable to create session config directory.")
+		FatalIf(createSessionDir().Trace(), "Unable to create session config directory.")
 	}
 
 	// Check if mc share directory exists.
@@ -223,12 +223,12 @@ func initMC() {
 
 	// Check if certs dir exists
 	if !isCertsDirExists() {
-		fatalIf(createCertsDir().Trace(), "Unable to create `CAs` directory.")
+		FatalIf(createCertsDir().Trace(), "Unable to create `CAs` directory.")
 	}
 
 	// Check if CAs dir exists
 	if !isCAsDirExists() {
-		fatalIf(createCAsDir().Trace(), "Unable to create `CAs` directory.")
+		FatalIf(createCAsDir().Trace(), "Unable to create `CAs` directory.")
 	}
 
 	// Load all authority certificates present in CAs dir
@@ -249,7 +249,7 @@ func installAutoCompletion() {
 
 	err := completeinstall.Install(filepath.Base(os.Args[0]))
 	if err != nil {
-		fatalIf(probe.NewError(err), "Unable to install auto-completion.")
+		FatalIf(probe.NewError(err), "Unable to install auto-completion.")
 	} else {
 		console.Infoln("enabled autocompletion in '$SHELLRC'. Please restart your shell.")
 	}
@@ -306,10 +306,10 @@ func initBeforeRunningCmd(ctx *cli.Context) error {
 	migrate()
 
 	// Initialize default config files.
-	initMC()
+	InitMC()
 
 	// Check if config can be read.
-	checkConfig()
+	CheckConfig()
 
 	return nil
 }

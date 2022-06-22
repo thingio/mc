@@ -55,7 +55,7 @@ func (t treeMessage) String() string {
 // JSON'ified message for scripting.
 // Does No-op. JSON requests are redirected to `ls -r --json`
 func (t treeMessage) JSON() string {
-	fatalIf(probe.NewError(errors.New("JSON() should never be called here")), "Unable to list in tree format. Please report this issue at https://github.com/minio/mc/issues")
+	FatalIf(probe.NewError(errors.New("JSON() should never be called here")), "Unable to list in tree format. Please report this issue at https://github.com/minio/mc/issues")
 	return ""
 }
 
@@ -111,7 +111,7 @@ func checkTreeSyntax(ctx context.Context, cliCtx *cli.Context) {
 
 	if cliCtx.IsSet("depth") {
 		if cliCtx.Int("depth") < -1 || cliCtx.Int("depth") == 0 {
-			fatalIf(errInvalidArgument().Trace(args...), "please set a proper depth, for example: '--depth 1' to limit the tree output, default (-1) output displays everything")
+			FatalIf(errInvalidArgument().Trace(args...), "please set a proper depth, for example: '--depth 1' to limit the tree output, default (-1) output displays everything")
 		}
 	}
 
@@ -121,7 +121,7 @@ func checkTreeSyntax(ctx context.Context, cliCtx *cli.Context) {
 
 	for _, url := range args {
 		if _, _, err := url2Stat(ctx, url, false, nil); err != nil && !isURLPrefixExists(url, false) {
-			fatalIf(err.Trace(url), "Unable to tree `"+url+"`.")
+			FatalIf(err.Trace(url), "Unable to tree `"+url+"`.")
 		}
 	}
 }
@@ -135,7 +135,7 @@ func doTree(ctx context.Context, url string, level int, leaf bool, branchString 
 	}
 
 	clnt, err := newClientFromAlias(targetAlias, targetURL)
-	fatalIf(err.Trace(targetURL), "Unable to initialize target `"+targetURL+"`.")
+	FatalIf(err.Trace(targetURL), "Unable to initialize target `"+targetURL+"`.")
 
 	prefixPath := clnt.GetURL().Path
 	separator := string(clnt.GetURL().Separator)
@@ -247,7 +247,7 @@ func doTree(ctx context.Context, url string, level int, leaf bool, branchString 
 
 // mainTree - is a handler for mc tree command
 func mainTree(cliCtx *cli.Context) error {
-	ctx, cancelList := context.WithCancel(globalContext)
+	ctx, cancelList := context.WithCancel(GlobalContext)
 	defer cancelList()
 
 	// check 'tree' cliCtx arguments.
@@ -277,7 +277,7 @@ func mainTree(cliCtx *cli.Context) error {
 				targetURL += "/"
 			}
 			clnt, err := newClientFromAlias(targetAlias, targetURL)
-			fatalIf(err.Trace(targetURL), "Unable to initialize target `"+targetURL+"`.")
+			FatalIf(err.Trace(targetURL), "Unable to initialize target `"+targetURL+"`.")
 			if e := doList(ctx, clnt, true, false); e != nil {
 				cErr = e
 			}

@@ -96,7 +96,7 @@ func (m retentionCmdMessage) JSON() string {
 		m.Status = "failure"
 	}
 	msgBytes, e := json.MarshalIndent(m, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 	return string(msgBytes)
 }
 
@@ -117,12 +117,12 @@ func getRetainUntilDate(validity uint64, unit minio.ValidityUnit) (string, *prob
 
 // setRetention - Set Retention for all objects within a given prefix.
 func setRetention(urlStr string, mode minio.RetentionMode, validity uint64, unit minio.ValidityUnit, bypassGovernance, isRecursive bool) error {
-	ctx, cancelSetRetention := context.WithCancel(globalContext)
+	ctx, cancelSetRetention := context.WithCancel(GlobalContext)
 	defer cancelSetRetention()
 
-	clnt, err := newClient(urlStr)
+	clnt, err := NewClient(urlStr)
 	if err != nil {
-		fatalIf(err.Trace(), "Cannot parse the provided url.")
+		FatalIf(err.Trace(), "Cannot parse the provided url.")
 	}
 
 	// Quit early if urlStr does not point to an S3 server
@@ -194,7 +194,7 @@ func mainRetention(ctx *cli.Context) error {
 		urlStr = args[0]
 		mode = minio.RetentionMode(strings.ToUpper(args[1]))
 		if !mode.IsValid() {
-			fatalIf(errInvalidArgument().Trace(args...), "invalid retention mode '%v'", mode)
+			FatalIf(errInvalidArgument().Trace(args...), "invalid retention mode '%v'", mode)
 		}
 
 		validityStr := args[2]
@@ -204,7 +204,7 @@ func mainRetention(ctx *cli.Context) error {
 		var e error
 		validity, e = strconv.ParseUint(validityStr, 10, 64)
 		if e != nil {
-			fatalIf(probe.NewError(e).Trace(urlStr), "invalid validity '%v'", validityStr)
+			FatalIf(probe.NewError(e).Trace(urlStr), "invalid validity '%v'", validityStr)
 		}
 
 		switch unitStr {
@@ -213,7 +213,7 @@ func mainRetention(ctx *cli.Context) error {
 		case 'y', 'Y':
 			unit = minio.Years
 		default:
-			fatalIf(errInvalidArgument().Trace(urlStr), "invalid validity format '%v'", unitStr)
+			FatalIf(errInvalidArgument().Trace(urlStr), "invalid validity format '%v'", unitStr)
 		}
 	default:
 		cli.ShowCommandHelpAndExit(ctx, "retention", 1)

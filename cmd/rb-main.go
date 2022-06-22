@@ -87,7 +87,7 @@ func (s removeBucketMessage) String() string {
 // JSON jsonified remove bucket message.
 func (s removeBucketMessage) JSON() string {
 	removeBucketJSONBytes, e := json.Marshal(s)
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 
 	return string(removeBucketJSONBytes)
 }
@@ -107,7 +107,7 @@ func checkRbSyntax(ctx context.Context, cliCtx *cli.Context) {
 			if isForce && isDangerous {
 				continue
 			}
-			fatalIf(errDummy().Trace(),
+			FatalIf(errDummy().Trace(),
 				"This operation results in **site-wide** removal of buckets. If you are really sure, retry this command with ‘--force’ and ‘--dangerous’ flags.")
 		}
 	}
@@ -186,7 +186,7 @@ func isNamespaceRemoval(ctx context.Context, url string) bool {
 
 // mainRemoveBucket is entry point for rb command.
 func mainRemoveBucket(cliCtx *cli.Context) error {
-	ctx, cancelRemoveBucket := context.WithCancel(globalContext)
+	ctx, cancelRemoveBucket := context.WithCancel(GlobalContext)
 	defer cancelRemoveBucket()
 
 	// check 'rb' cli arguments.
@@ -199,7 +199,7 @@ func mainRemoveBucket(cliCtx *cli.Context) error {
 	var cErr error
 	for _, targetURL := range cliCtx.Args() {
 		// Instantiate client for URL.
-		clnt, err := newClient(targetURL)
+		clnt, err := NewClient(targetURL)
 		if err != nil {
 			errorIf(err.Trace(targetURL), "Invalid target `"+targetURL+"`.")
 			cErr = exitStatus(globalErrorExitStatus)
@@ -224,11 +224,11 @@ func mainRemoveBucket(cliCtx *cli.Context) error {
 		}
 		// For all recursive operations make sure to check for 'force' flag.
 		if !isForce && !isEmpty {
-			fatalIf(errDummy().Trace(), "`"+targetURL+"` is not empty. Retry this command with ‘--force’ flag if you want to remove `"+targetURL+"` and all its contents")
+			FatalIf(errDummy().Trace(), "`"+targetURL+"` is not empty. Retry this command with ‘--force’ flag if you want to remove `"+targetURL+"` and all its contents")
 		}
 
 		e := deleteBucket(ctx, targetURL)
-		fatalIf(e.Trace(targetURL), "Failed to remove `"+targetURL+"`.")
+		FatalIf(e.Trace(targetURL), "Failed to remove `"+targetURL+"`.")
 
 		if !isNamespaceRemoval(ctx, targetURL) {
 			printMsg(removeBucketMessage{

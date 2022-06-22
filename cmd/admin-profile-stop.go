@@ -94,21 +94,21 @@ func mainAdminProfileStop(ctx *cli.Context) error {
 	// Create a new MinIO Admin Client
 	client, err := newAdminClient(aliasedURL)
 	if err != nil {
-		fatalIf(err.Trace(aliasedURL), "Cannot initialize admin client.")
+		FatalIf(err.Trace(aliasedURL), "Cannot initialize admin client.")
 		return nil
 	}
 
 	// Create profile zip file
 	tmpFile, e := ioutil.TempFile("", "mc-profile-")
-	fatalIf(probe.NewError(e), "Unable to download profile data.")
+	FatalIf(probe.NewError(e), "Unable to download profile data.")
 
 	// Ask for profile data, which will come compressed with zip format
-	zippedData, adminErr := client.DownloadProfilingData(globalContext)
-	fatalIf(probe.NewError(adminErr), "Unable to download profile data.")
+	zippedData, adminErr := client.DownloadProfilingData(GlobalContext)
+	FatalIf(probe.NewError(adminErr), "Unable to download profile data.")
 
 	// Copy zip content to target download file
 	_, e = io.Copy(tmpFile, zippedData)
-	fatalIf(probe.NewError(e), "Unable to download profile data.")
+	FatalIf(probe.NewError(e), "Unable to download profile data.")
 
 	// Close everything
 	zippedData.Close()
@@ -119,14 +119,14 @@ func mainAdminProfileStop(ctx *cli.Context) error {
 	fi, e := os.Stat(downloadPath)
 	if e == nil && !fi.IsDir() {
 		e = moveFile(downloadPath, downloadPath+"."+time.Now().Format(dateTimeFormatFilename))
-		fatalIf(probe.NewError(e), "Unable to create a backup of profile.zip")
+		FatalIf(probe.NewError(e), "Unable to create a backup of profile.zip")
 	} else {
 		if !os.IsNotExist(e) {
 			fatal(probe.NewError(e), "Unable to download profile data.")
 		}
 	}
 
-	fatalIf(probe.NewError(moveFile(tmpFile.Name(), downloadPath)), "Unable to download profile data.")
+	FatalIf(probe.NewError(moveFile(tmpFile.Name(), downloadPath)), "Unable to download profile data.")
 
 	console.Infof("Profile data successfully downloaded as %s\n", downloadPath)
 	return nil

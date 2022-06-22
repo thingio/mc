@@ -96,7 +96,7 @@ type eventAddMessage struct {
 func (u eventAddMessage) JSON() string {
 	u.Status = "success"
 	eventAddMessageJSONBytes, e := json.MarshalIndent(u, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 	return string(eventAddMessageJSONBytes)
 }
 
@@ -106,7 +106,7 @@ func (u eventAddMessage) String() string {
 }
 
 func mainEventAdd(cliCtx *cli.Context) error {
-	ctx, cancelEventAdd := context.WithCancel(globalContext)
+	ctx, cancelEventAdd := context.WithCancel(GlobalContext)
 	defer cancelEventAdd()
 
 	console.SetColor("Event", color.New(color.FgGreen, color.Bold))
@@ -122,18 +122,18 @@ func mainEventAdd(cliCtx *cli.Context) error {
 	prefix := cliCtx.String("prefix")
 	suffix := cliCtx.String("suffix")
 
-	client, err := newClient(path)
+	client, err := NewClient(path)
 	if err != nil {
-		fatalIf(err.Trace(), "Cannot parse the provided url.")
+		FatalIf(err.Trace(), "Cannot parse the provided url.")
 	}
 
 	s3Client, ok := client.(*S3Client)
 	if !ok {
-		fatalIf(errDummy().Trace(), "The provided url doesn't point to a S3 server.")
+		FatalIf(errDummy().Trace(), "The provided url doesn't point to a S3 server.")
 	}
 
 	err = s3Client.AddNotificationConfig(ctx, arn, event, prefix, suffix, ignoreExisting)
-	fatalIf(err, "Cannot enable notification on the specified bucket.")
+	FatalIf(err, "Cannot enable notification on the specified bucket.")
 	printMsg(eventAddMessage{
 		ARN:    arn,
 		Event:  event,

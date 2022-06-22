@@ -45,13 +45,13 @@ const (
 )
 
 var (
-	globalQuiet    = false // Quiet flag set via command line
+	globalQuiet    = true  // Quiet flag set via command line
 	globalJSON     = false // Json flag set via command line
 	globalDebug    = false // Debug flag set via command line
 	globalNoColor  = false // No Color flag set via command line
 	globalInsecure = false // Insecure flag set via command line
 
-	globalContext, globalCancel = context.WithCancel(context.Background())
+	GlobalContext, globalCancel = context.WithCancel(context.Background())
 )
 
 var (

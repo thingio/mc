@@ -37,7 +37,7 @@ func getCertsDir() (string, *probe.Error) {
 // isCertsDirExists - verify if certs directory exists.
 func isCertsDirExists() bool {
 	certsDir, err := getCertsDir()
-	fatalIf(err.Trace(), "Unable to determine certs folder.")
+	FatalIf(err.Trace(), "Unable to determine certs folder.")
 	if _, e := os.Stat(certsDir); e != nil {
 		return false
 	}
@@ -77,7 +77,7 @@ func mustGetCAsDir() string {
 // isCAsDirExists - verify if CAs directory exists.
 func isCAsDirExists() bool {
 	CAsDir, err := getCAsDir()
-	fatalIf(err.Trace(), "Unable to determine CAs folder.")
+	FatalIf(err.Trace(), "Unable to determine CAs folder.")
 	if _, e := os.Stat(CAsDir); e != nil {
 		return false
 	}
@@ -128,7 +128,7 @@ func loadRootCAs() {
 	for _, caFile := range caFiles {
 		caCert, err := ioutil.ReadFile(caFile)
 		if err != nil {
-			fatalIf(probe.NewError(err), "Unable to load a CA file.")
+			FatalIf(probe.NewError(err), "Unable to load a CA file.")
 		}
 		globalRootCAs.AppendCertsFromPEM(caCert)
 	}

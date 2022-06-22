@@ -184,8 +184,8 @@ func urlJoinPath(url1, url2 string) string {
 }
 
 // url2Stat returns stat info for URL.
-func url2Stat(ctx context.Context, urlStr string, fileAttr bool, encKeyDB map[string][]prefixSSEPair) (client Client, content *ClientContent, err *probe.Error) {
-	client, err = newClient(urlStr)
+func url2Stat(ctx context.Context, urlStr string, fileAttr bool, encKeyDB map[string][]PrefixSSEPair) (client Client, content *ClientContent, err *probe.Error) {
+	client, err = NewClient(urlStr)
 	if err != nil {
 		return nil, nil, err.Trace(urlStr)
 	}
@@ -225,14 +225,14 @@ func url2Alias(aliasedURL string) (alias, path string) {
 
 // isURLPrefixExists - check if object key prefix exists.
 func isURLPrefixExists(urlPrefix string, incomplete bool) bool {
-	clnt, err := newClient(urlPrefix)
+	clnt, err := NewClient(urlPrefix)
 	if err != nil {
 		return false
 	}
 	isRecursive := false
 	isIncomplete := incomplete
 	isFetchMeta := false
-	for entry := range clnt.List(globalContext, isRecursive, isIncomplete, isFetchMeta, DirNone) {
+	for entry := range clnt.List(GlobalContext, isRecursive, isIncomplete, isFetchMeta, DirNone) {
 		return entry.Err == nil
 	}
 	return false

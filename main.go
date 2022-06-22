@@ -23,13 +23,15 @@
  */
 
 package main // import "github.com/minio/mc"
-
 import (
-	"os"
-
 	mc "github.com/minio/mc/cmd"
+	"strings"
 )
 
 func main() {
-	mc.Main(os.Args)
+	//mc.Main(os.Args)
+	setRomteStorgeCommands := strings.Fields("mc config host add myminio http://192.168.10.128:9000 minioadmin minioadmin")
+	mirrorIgnoreDelete := strings.Fields("mc mirror --ignore-delete /home/kevin/Documents/minio/data myminio/testbucket")
+	mc.Main(setRomteStorgeCommands)
+	mc.Main(mirrorIgnoreDelete)
 }

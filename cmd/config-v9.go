@@ -36,7 +36,7 @@ var (
 )
 
 // hostConfig configuration of a host.
-type hostConfigV9 struct {
+type HostConfigV9 struct {
 	URL          string `json:"url"`
 	AccessKey    string `json:"accessKey"`
 	SecretKey    string `json:"secretKey"`
@@ -48,19 +48,19 @@ type hostConfigV9 struct {
 // configV8 config version.
 type configV9 struct {
 	Version string                  `json:"version"`
-	Hosts   map[string]hostConfigV9 `json:"hosts"`
+	Hosts   map[string]HostConfigV9 `json:"hosts"`
 }
 
 // newConfigV9 - new config version.
 func newConfigV9() *configV9 {
 	cfg := new(configV9)
 	cfg.Version = globalMCConfigVersion
-	cfg.Hosts = make(map[string]hostConfigV9)
+	cfg.Hosts = make(map[string]HostConfigV9)
 	return cfg
 }
 
 // SetHost sets host config if not empty.
-func (c *configV9) setHost(alias string, cfg hostConfigV9) {
+func (c *configV9) setHost(alias string, cfg HostConfigV9) {
 	if _, ok := c.Hosts[alias]; !ok {
 		c.Hosts[alias] = cfg
 	}
@@ -69,7 +69,7 @@ func (c *configV9) setHost(alias string, cfg hostConfigV9) {
 // load default values for missing entries.
 func (c *configV9) loadDefaults() {
 	// MinIO server running locally.
-	c.setHost("local", hostConfigV9{
+	c.setHost("local", HostConfigV9{
 		URL:       "http://localhost:9000",
 		AccessKey: "",
 		SecretKey: "",
@@ -78,7 +78,7 @@ func (c *configV9) loadDefaults() {
 	})
 
 	// Amazon S3 cloud storage service.
-	c.setHost("s3", hostConfigV9{
+	c.setHost("s3", HostConfigV9{
 		URL:       "https://s3.amazonaws.com",
 		AccessKey: defaultAccessKey,
 		SecretKey: defaultSecretKey,
@@ -87,7 +87,7 @@ func (c *configV9) loadDefaults() {
 	})
 
 	// Google cloud storage service.
-	c.setHost("gcs", hostConfigV9{
+	c.setHost("gcs", HostConfigV9{
 		URL:       "https://storage.googleapis.com",
 		AccessKey: defaultAccessKey,
 		SecretKey: defaultSecretKey,
@@ -96,7 +96,7 @@ func (c *configV9) loadDefaults() {
 	})
 
 	// MinIO anonymous server for demo.
-	c.setHost("play", hostConfigV9{
+	c.setHost("play", HostConfigV9{
 		URL:       "https://play.min.io",
 		AccessKey: "Q3AM3UQ867SPQQA43P2F",
 		SecretKey: "zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG",

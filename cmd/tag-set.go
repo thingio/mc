@@ -67,7 +67,7 @@ func (t tagSetMessage) String() string {
 // JSON tagSetMessage.
 func (t tagSetMessage) JSON() string {
 	msgBytes, e := json.MarshalIndent(t, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 	return string(msgBytes)
 }
 
@@ -78,7 +78,7 @@ func checkSetTagSyntax(ctx *cli.Context) {
 }
 
 func mainSetTag(cliCtx *cli.Context) error {
-	ctx, cancelSetTag := context.WithCancel(globalContext)
+	ctx, cancelSetTag := context.WithCancel(GlobalContext)
 	defer cancelSetTag()
 
 	checkSetTagSyntax(cliCtx)
@@ -87,10 +87,10 @@ func mainSetTag(cliCtx *cli.Context) error {
 	targetURL := cliCtx.Args().Get(0)
 	tags := cliCtx.Args().Get(1)
 
-	clnt, err := newClient(targetURL)
-	fatalIf(err.Trace(cliCtx.Args()...), "Unable to initialize target "+targetURL)
+	clnt, err := NewClient(targetURL)
+	FatalIf(err.Trace(cliCtx.Args()...), "Unable to initialize target "+targetURL)
 
-	fatalIf(clnt.SetTags(ctx, tags).Trace(tags), "Failed to set tags for "+targetURL)
+	FatalIf(clnt.SetTags(ctx, tags).Trace(tags), "Failed to set tags for "+targetURL)
 
 	printMsg(tagSetMessage{
 		Status: "success",

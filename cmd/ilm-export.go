@@ -58,14 +58,14 @@ type ilmExportMessage struct {
 
 func (i ilmExportMessage) String() string {
 	msgBytes, e := json.MarshalIndent(i.ILMConfig, "", " ")
-	fatalIf(probe.NewError(e), "Unable to export ILM configuration")
+	FatalIf(probe.NewError(e), "Unable to export ILM configuration")
 
 	return string(msgBytes)
 }
 
 func (i ilmExportMessage) JSON() string {
 	msgBytes, e := json.MarshalIndent(i, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal ILM message")
+	FatalIf(probe.NewError(e), "Unable to marshal ILM message")
 
 	return string(msgBytes)
 }
@@ -78,7 +78,7 @@ func checkILMExportSyntax(ctx *cli.Context) {
 }
 
 func mainILMExport(cliCtx *cli.Context) error {
-	ctx, cancelILMExport := context.WithCancel(globalContext)
+	ctx, cancelILMExport := context.WithCancel(GlobalContext)
 	defer cancelILMExport()
 
 	checkILMExportSyntax(cliCtx)
@@ -87,13 +87,13 @@ func mainILMExport(cliCtx *cli.Context) error {
 	args := cliCtx.Args()
 	urlStr := args.Get(0)
 
-	client, err := newClient(urlStr)
-	fatalIf(err.Trace(args...), "Unable to initialize client for "+urlStr+".")
+	client, err := NewClient(urlStr)
+	FatalIf(err.Trace(args...), "Unable to initialize client for "+urlStr+".")
 
 	ilmCfg, err := client.GetLifecycle(ctx)
-	fatalIf(err.Trace(args...), "Unable to get lifecycle configuration")
+	FatalIf(err.Trace(args...), "Unable to get lifecycle configuration")
 	if len(ilmCfg.Rules) == 0 {
-		fatalIf(probe.NewError(errors.New("lifecycle configuration not set")).Trace(urlStr),
+		FatalIf(probe.NewError(errors.New("lifecycle configuration not set")).Trace(urlStr),
 			"Unable to export lifecycle configuration")
 	}
 

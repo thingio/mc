@@ -63,11 +63,11 @@ func mainAdminGroupInfo(ctx *cli.Context) error {
 
 	// Create a new MinIO Admin Client
 	client, err := newAdminClient(aliasedURL)
-	fatalIf(err, "Unable to initialize admin connection.")
+	FatalIf(err, "Unable to initialize admin connection.")
 
 	group := args.Get(1)
-	gd, err1 := client.GetGroupDescription(globalContext, group)
-	fatalIf(probe.NewError(err1).Trace(args...), "Could not get group info")
+	gd, err1 := client.GetGroupDescription(GlobalContext, group)
+	FatalIf(probe.NewError(err1).Trace(args...), "Could not get group info")
 
 	printMsg(groupMessage{
 		op:          "info",

@@ -74,7 +74,7 @@ EXAMPLES:
 }
 
 // checkStatSyntax - validate all the passed arguments
-func checkStatSyntax(ctx context.Context, cliCtx *cli.Context, encKeyDB map[string][]prefixSSEPair) {
+func checkStatSyntax(ctx context.Context, cliCtx *cli.Context, encKeyDB map[string][]PrefixSSEPair) {
 	if !cliCtx.Args().Present() {
 		cli.ShowCommandHelpAndExit(cliCtx, "stat", 1) // last argument is exit code
 	}
@@ -82,7 +82,7 @@ func checkStatSyntax(ctx context.Context, cliCtx *cli.Context, encKeyDB map[stri
 	args := cliCtx.Args()
 	for _, arg := range args {
 		if strings.TrimSpace(arg) == "" {
-			fatalIf(errInvalidArgument().Trace(args...), "Unable to validate empty argument.")
+			FatalIf(errInvalidArgument().Trace(args...), "Unable to validate empty argument.")
 		}
 	}
 	// extract URLs.
@@ -92,14 +92,14 @@ func checkStatSyntax(ctx context.Context, cliCtx *cli.Context, encKeyDB map[stri
 	for _, url := range URLs {
 		_, _, err := url2Stat(ctx, url, false, encKeyDB)
 		if err != nil && !isURLPrefixExists(url, isIncomplete) {
-			fatalIf(err.Trace(url), "Unable to stat `"+url+"`.")
+			FatalIf(err.Trace(url), "Unable to stat `"+url+"`.")
 		}
 	}
 }
 
 // mainStat - is a handler for mc stat command
 func mainStat(cliCtx *cli.Context) error {
-	ctx, cancelStat := context.WithCancel(globalContext)
+	ctx, cancelStat := context.WithCancel(GlobalContext)
 	defer cancelStat()
 
 	// Additional command specific theme customization.
@@ -111,7 +111,7 @@ func mainStat(cliCtx *cli.Context) error {
 
 	// Parse encryption keys per command.
 	encKeyDB, err := getEncKeys(cliCtx)
-	fatalIf(err, "Unable to parse encryption keys.")
+	FatalIf(err, "Unable to parse encryption keys.")
 
 	// check 'stat' cli arguments.
 	checkStatSyntax(ctx, cliCtx, encKeyDB)
@@ -129,7 +129,7 @@ func mainStat(cliCtx *cli.Context) error {
 	for _, targetURL := range args {
 		stats, err := statURL(ctx, targetURL, false, isRecursive, encKeyDB)
 		if err != nil {
-			fatalIf(err, "Unable to stat `"+targetURL+"`.")
+			FatalIf(err, "Unable to stat `"+targetURL+"`.")
 		}
 		for _, stat := range stats {
 			st := parseStat(stat)

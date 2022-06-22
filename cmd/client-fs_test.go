@@ -65,7 +65,7 @@ func (s *TestSuite) TestList(c *C) {
 
 	// Verify previously create files and list them.
 	var contents []*ClientContent
-	for content := range fsClient.List(globalContext, false, false, false, DirNone) {
+	for content := range fsClient.List(GlobalContext, false, false, false, DirNone) {
 		if content.Err != nil {
 			err = content.Err
 			break
@@ -93,7 +93,7 @@ func (s *TestSuite) TestList(c *C) {
 
 	contents = nil
 	// List non recursive to list only top level files.
-	for content := range fsClient.List(globalContext, false, false, false, DirNone) {
+	for content := range fsClient.List(GlobalContext, false, false, false, DirNone) {
 		if content.Err != nil {
 			err = content.Err
 			break
@@ -109,7 +109,7 @@ func (s *TestSuite) TestList(c *C) {
 
 	contents = nil
 	// List recursively all files and verify.
-	for content := range fsClient.List(globalContext, true, false, false, DirNone) {
+	for content := range fsClient.List(GlobalContext, true, false, false, DirNone) {
 		if content.Err != nil {
 			err = content.Err
 			break
@@ -153,7 +153,7 @@ func (s *TestSuite) TestList(c *C) {
 
 	contents = nil
 	// List recursively all files and verify.
-	for content := range fsClient.List(globalContext, true, false, false, DirNone) {
+	for content := range fsClient.List(GlobalContext, true, false, false, DirNone) {
 		if content.Err != nil {
 			err = content.Err
 			break

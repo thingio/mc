@@ -61,7 +61,7 @@ func (s serviceRestartCommand) String() string {
 // JSON jsonified service restart command message.
 func (s serviceRestartCommand) JSON() string {
 	serviceRestartJSONBytes, e := json.MarshalIndent(s, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 
 	return string(serviceRestartJSONBytes)
 }
@@ -84,7 +84,7 @@ func (s serviceRestartMessage) String() string {
 // JSON jsonified service restart message.
 func (s serviceRestartMessage) JSON() string {
 	serviceRestartJSONBytes, e := json.MarshalIndent(s, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 
 	return string(serviceRestartJSONBytes)
 }
@@ -110,10 +110,10 @@ func mainAdminServiceRestart(ctx *cli.Context) error {
 	aliasedURL := args.Get(0)
 
 	client, err := newAdminClient(aliasedURL)
-	fatalIf(err, "Unable to initialize admin connection.")
+	FatalIf(err, "Unable to initialize admin connection.")
 
 	// Restart the specified MinIO server
-	fatalIf(probe.NewError(client.ServiceRestart(globalContext)), "Cannot restart the server.")
+	FatalIf(probe.NewError(client.ServiceRestart(GlobalContext)), "Cannot restart the server.")
 
 	// Success..
 	printMsg(serviceRestartCommand{Status: "success", ServerURL: aliasedURL})
@@ -125,7 +125,7 @@ func mainAdminServiceRestart(ctx *cli.Context) error {
 	time.Sleep(6 * time.Second)
 
 	// Fetch the service status of the specified MinIO server
-	_, e := client.ServerInfo(globalContext)
+	_, e := client.ServerInfo(GlobalContext)
 
 	if e != nil {
 		printMsg(serviceRestartMessage{Status: "failure", Err: e, ServerURL: aliasedURL})

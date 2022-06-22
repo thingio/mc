@@ -272,18 +272,18 @@ func bgRemove(ctx context.Context, url string) {
 
 // mainMove is the entry point for mv command.
 func mainMove(cliCtx *cli.Context) error {
-	ctx, cancelMove := context.WithCancel(globalContext)
+	ctx, cancelMove := context.WithCancel(GlobalContext)
 	defer cancelMove()
 
 	// Parse encryption keys per command.
 	encKeyDB, err := getEncKeys(cliCtx)
-	fatalIf(err, "Unable to parse encryption keys.")
+	FatalIf(err, "Unable to parse encryption keys.")
 
 	// Parse metadata.
 	userMetaMap := make(map[string]string)
 	if cliCtx.String("attr") != "" {
 		userMetaMap, err = getMetaDataEntry(cliCtx.String("attr"))
-		fatalIf(err, "Unable to parse attribute %v", cliCtx.String("attr"))
+		FatalIf(err, "Unable to parse attribute %v", cliCtx.String("attr"))
 	}
 
 	// check 'copy' cli arguments.
@@ -294,19 +294,19 @@ func mainMove(cliCtx *cli.Context) error {
 		srcURL := args.Get(0)
 		dstURL := args.Get(1)
 		if srcURL == dstURL {
-			fatalIf(probe.NewError(errors.New("")), fmt.Sprintf("Source and destination urls cannot be the same: %v.", srcURL))
+			FatalIf(probe.NewError(errors.New("")), fmt.Sprintf("Source and destination urls cannot be the same: %v.", srcURL))
 		}
 	}
 
 	for _, urlStr := range cliCtx.Args() {
-		client, err := newClient(urlStr)
+		client, err := NewClient(urlStr)
 		if err != nil {
-			fatalIf(err.Trace(), "Cannot parse the provided url.")
+			FatalIf(err.Trace(), "Cannot parse the provided url.")
 		}
 
 		if s3Client, ok := client.(*S3Client); ok {
 			if _, _, _, err = s3Client.GetObjectLockConfig(ctx); err == nil {
-				fatalIf(probe.NewError(errors.New("")), fmt.Sprintf("Object lock configuration is enabled on the specified bucket in alias %v.", urlStr))
+				FatalIf(probe.NewError(errors.New("")), fmt.Sprintf("Object lock configuration is enabled on the specified bucket in alias %v.", urlStr))
 			}
 		}
 	}
@@ -325,7 +325,7 @@ func mainMove(cliCtx *cli.Context) error {
 
 	if sseKeys != "" {
 		sseKeys, err = getDecodedKey(sseKeys)
-		fatalIf(err, "Unable to parse encryption keys.")
+		FatalIf(err, "Unable to parse encryption keys.")
 	}
 	sse := cliCtx.String("encrypt")
 
@@ -335,7 +335,7 @@ func mainMove(cliCtx *cli.Context) error {
 		sessionID := getHash("mv", cliCtx.Args())
 		if isSessionExists(sessionID) {
 			session, err = loadSessionV8(sessionID)
-			fatalIf(err.Trace(sessionID), "Unable to load session.")
+			FatalIf(err.Trace(sessionID), "Unable to load session.")
 		} else {
 			session = newSessionV8(sessionID)
 			session.Header.CommandType = "mv"
@@ -356,7 +356,7 @@ func mainMove(cliCtx *cli.Context) error {
 			var e error
 			if session.Header.RootPath, e = os.Getwd(); e != nil {
 				session.Delete()
-				fatalIf(probe.NewError(e), "Unable to get current working folder.")
+				FatalIf(probe.NewError(e), "Unable to get current working folder.")
 			}
 
 			// extract URLs.

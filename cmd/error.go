@@ -42,8 +42,8 @@ type errorMessage struct {
 	SysInfo   map[string]string  `json:"sysinfo"`
 }
 
-// fatalIf wrapper function which takes error and selectively prints stack frames if available on debug
-func fatalIf(err *probe.Error, msg string, data ...interface{}) {
+// FatalIf wrapper function which takes error and selectively prints stack frames if available on debug
+func FatalIf(err *probe.Error, msg string, data ...interface{}) {
 	if err == nil {
 		return
 	}
@@ -117,7 +117,7 @@ func exitStatus(status int) error {
 	return cli.NewExitError("", status)
 }
 
-// errorIf synonymous with fatalIf but doesn't exit on error != nil
+// errorIf synonymous with FatalIf but doesn't exit on error != nil
 func errorIf(err *probe.Error, msg string, data ...interface{}) {
 	if err == nil {
 		return

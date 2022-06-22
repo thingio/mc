@@ -249,19 +249,19 @@ func getInputSerializationOpts(ctx *cli.Context) map[string]map[string]string {
 	csvType := ctx.IsSet("csv-input")
 	jsonType := ctx.IsSet("json-input")
 	if csvType && jsonType {
-		fatalIf(errInvalidArgument(), "Only one of --csv-input or --json-input can be specified as input serialization option")
+		FatalIf(errInvalidArgument(), "Only one of --csv-input or --json-input can be specified as input serialization option")
 	}
 
 	if icsv != "" {
 		kv, err := parseSerializationOpts(icsv, append(validCSVCommonKeys, validCSVInputKeys...), validCSVInputAbbrKeys)
-		fatalIf(err, "Invalid serialization option(s) specified for --csv-input flag")
+		FatalIf(err, "Invalid serialization option(s) specified for --csv-input flag")
 
 		m["csv"] = kv
 	}
 	if ijson != "" {
 		kv, err := parseSerializationOpts(ijson, validJSONInputKeys, nil)
 
-		fatalIf(err, "Invalid serialization option(s) specified for --json-input flag")
+		FatalIf(err, "Invalid serialization option(s) specified for --json-input flag")
 		m["json"] = kv
 	}
 
@@ -278,30 +278,30 @@ func getOutputSerializationOpts(ctx *cli.Context, csvHdrs []string) (opts map[st
 	jsonType := ctx.IsSet("json-output")
 
 	if csvType && jsonType {
-		fatalIf(errInvalidArgument(), "Only one of --csv-output, or --json-output can be specified as output serialization option")
+		FatalIf(errInvalidArgument(), "Only one of --csv-output, or --json-output can be specified as output serialization option")
 	}
 
 	if jsonType && len(csvHdrs) > 0 {
-		fatalIf(errInvalidArgument(), "--csv-output-header incompatible with --json-output option")
+		FatalIf(errInvalidArgument(), "--csv-output-header incompatible with --json-output option")
 	}
 
 	if csvType {
 		validKeys := append(validCSVCommonKeys, validJSONCSVCommonOutputKeys...)
 		kv, err := parseSerializationOpts(ocsv, append(validKeys, validCSVOutputKeys...), validCSVOutputAbbrKeys)
-		fatalIf(err, "Invalid value(s) specified for --csv-output flag")
+		FatalIf(err, "Invalid value(s) specified for --csv-output flag")
 		m["csv"] = kv
 	}
 
 	if jsonType || globalJSON {
 		kv, err := parseSerializationOpts(ojson, validJSONCSVCommonOutputKeys, validJSONOutputAbbrKeys)
-		fatalIf(err, "Invalid value(s) specified for --json-output flag")
+		FatalIf(err, "Invalid value(s) specified for --json-output flag")
 		m["json"] = kv
 	}
 	return m
 }
 
 // getCSVHeader fetches the first line of csv query object
-func getCSVHeader(sourceURL string, encKeyDB map[string][]prefixSSEPair) ([]string, *probe.Error) {
+func getCSVHeader(sourceURL string, encKeyDB map[string][]PrefixSSEPair) ([]string, *probe.Error) {
 	var r io.ReadCloser
 	switch sourceURL {
 	case "-":
@@ -309,7 +309,7 @@ func getCSVHeader(sourceURL string, encKeyDB map[string][]prefixSSEPair) ([]stri
 	default:
 		var err *probe.Error
 		var metadata map[string]string
-		if r, metadata, err = getSourceStreamMetadataFromURL(globalContext, sourceURL, encKeyDB); err != nil {
+		if r, metadata, err = getSourceStreamMetadataFromURL(GlobalContext, sourceURL, encKeyDB); err != nil {
 			return nil, err.Trace(sourceURL)
 		}
 		ctype := metadata["Content-Type"]
@@ -343,7 +343,7 @@ func isSelectAll(query string) bool {
 
 // if csv-output-header is set to a comma delimited string use it, othjerwise attempt to get the header from
 // query object
-func getCSVOutputHeaders(ctx *cli.Context, url string, encKeyDB map[string][]prefixSSEPair, query string) (hdrs []string) {
+func getCSVOutputHeaders(ctx *cli.Context, url string, encKeyDB map[string][]PrefixSSEPair, query string) (hdrs []string) {
 	if !ctx.IsSet("csv-output-header") {
 		return
 	}
@@ -381,8 +381,8 @@ func isCSVOrJSON(inOpts map[string]map[string]string) bool {
 	return false
 }
 
-func sqlSelect(targetURL, expression string, encKeyDB map[string][]prefixSSEPair, selOpts SelectObjectOpts, csvHdrs []string, writeHdr bool) *probe.Error {
-	ctx, cancelSelect := context.WithCancel(globalContext)
+func sqlSelect(targetURL, expression string, encKeyDB map[string][]PrefixSSEPair, selOpts SelectObjectOpts, csvHdrs []string, writeHdr bool) *probe.Error {
+	ctx, cancelSelect := context.WithCancel(GlobalContext)
 	defer cancelSelect()
 
 	alias, _, _, err := expandAlias(targetURL)
@@ -390,7 +390,7 @@ func sqlSelect(targetURL, expression string, encKeyDB map[string][]prefixSSEPair
 		return err.Trace(targetURL)
 	}
 
-	targetClnt, err := newClient(targetURL)
+	targetClnt, err := NewClient(targetURL)
 	if err != nil {
 		return err.Trace(targetURL)
 	}
@@ -413,12 +413,12 @@ func sqlSelect(targetURL, expression string, encKeyDB map[string][]prefixSSEPair
 func validateOpts(selOpts SelectObjectOpts, url string) {
 	_, targetURL, _ := mustExpandAlias(url)
 	if strings.HasSuffix(targetURL, ".parquet") && isCSVOrJSON(selOpts.InputSerOpts) {
-		fatalIf(errInvalidArgument(), "Input serialization flags --csv-input and --json-input cannot be used for object in .parquet format")
+		FatalIf(errInvalidArgument(), "Input serialization flags --csv-input and --json-input cannot be used for object in .parquet format")
 	}
 }
 
 // validate args and optionally fetch the csv header of query object
-func getAndValidateArgs(ctx *cli.Context, encKeyDB map[string][]prefixSSEPair, url string) (query string, csvHdrs []string, selOpts SelectObjectOpts) {
+func getAndValidateArgs(ctx *cli.Context, encKeyDB map[string][]PrefixSSEPair, url string) (query string, csvHdrs []string, selOpts SelectObjectOpts) {
 	query = ctx.String("query")
 	csvHdrs = getCSVOutputHeaders(ctx, url, encKeyDB, query)
 	selOpts = getSQLOpts(ctx, csvHdrs)
@@ -435,7 +435,7 @@ func checkSQLSyntax(ctx *cli.Context) {
 
 // mainSQL is the main entry point for sql command.
 func mainSQL(cliCtx *cli.Context) error {
-	ctx, cancelSQL := context.WithCancel(globalContext)
+	ctx, cancelSQL := context.WithCancel(GlobalContext)
 	defer cancelSQL()
 
 	var (
@@ -445,7 +445,7 @@ func mainSQL(cliCtx *cli.Context) error {
 	)
 	// Parse encryption keys per command.
 	encKeyDB, err := getEncKeys(cliCtx)
-	fatalIf(err, "Unable to parse encryption keys.")
+	FatalIf(err, "Unable to parse encryption keys.")
 
 	// validate sql input arguments.
 	checkSQLSyntax(cliCtx)

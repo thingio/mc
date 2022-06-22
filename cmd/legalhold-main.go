@@ -81,18 +81,18 @@ func (l legalHoldCmdMessage) String() string {
 // JSON'ified message for scripting.
 func (l legalHoldCmdMessage) JSON() string {
 	msgBytes, e := json.MarshalIndent(l, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 	return string(msgBytes)
 }
 
 // setRetention - Set Retention for all objects within a given prefix.
 func setLegalHold(urlStr string, lhold minio.LegalHoldStatus, isRecursive bool) error {
-	ctx, cancelLegalHold := context.WithCancel(globalContext)
+	ctx, cancelLegalHold := context.WithCancel(GlobalContext)
 	defer cancelLegalHold()
 
-	clnt, err := newClient(urlStr)
+	clnt, err := NewClient(urlStr)
 	if err != nil {
-		fatalIf(err.Trace(), "Cannot parse the provided url.")
+		FatalIf(err.Trace(), "Cannot parse the provided url.")
 	}
 	if !isRecursive {
 		err = clnt.PutObjectLegalHold(ctx, lhold)
@@ -161,7 +161,7 @@ func mainLegalHold(ctx *cli.Context) error {
 		urlStr = args[0]
 		lhold = minio.LegalHoldStatus(strings.ToUpper(args[1]))
 		if !lhold.IsValid() {
-			fatalIf(errInvalidArgument().Trace(urlStr), "invalid legal hold status '%v'", lhold)
+			FatalIf(errInvalidArgument().Trace(urlStr), "invalid legal hold status '%v'", lhold)
 		}
 	default:
 		cli.ShowCommandHelpAndExit(ctx, "legalhold", 1)

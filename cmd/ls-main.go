@@ -84,7 +84,7 @@ func checkListSyntax(ctx context.Context, cliCtx *cli.Context) {
 	}
 	for _, arg := range args {
 		if strings.TrimSpace(arg) == "" {
-			fatalIf(errInvalidArgument().Trace(args...), "Unable to validate empty argument.")
+			FatalIf(errInvalidArgument().Trace(args...), "Unable to validate empty argument.")
 		}
 	}
 	// extract URLs.
@@ -101,14 +101,14 @@ func checkListSyntax(ctx context.Context, cliCtx *cli.Context) {
 			if buckNameEmpty || noPath {
 				continue
 			}
-			fatalIf(err.Trace(url), "Unable to stat `"+url+"`.")
+			FatalIf(err.Trace(url), "Unable to stat `"+url+"`.")
 		}
 	}
 }
 
 // mainList - is a handler for mc ls command
 func mainList(cliCtx *cli.Context) error {
-	ctx, cancelList := context.WithCancel(globalContext)
+	ctx, cancelList := context.WithCancel(GlobalContext)
 	defer cancelList()
 
 	// Additional command specific theme customization.
@@ -132,15 +132,15 @@ func mainList(cliCtx *cli.Context) error {
 
 	var cErr error
 	for _, targetURL := range args {
-		clnt, err := newClient(targetURL)
-		fatalIf(err.Trace(targetURL), "Unable to initialize target `"+targetURL+"`.")
+		clnt, err := NewClient(targetURL)
+		FatalIf(err.Trace(targetURL), "Unable to initialize target `"+targetURL+"`.")
 		if !strings.HasSuffix(targetURL, string(clnt.GetURL().Separator)) {
 			var st *ClientContent
 			st, err = clnt.Stat(ctx, isIncomplete, false, nil)
 			if st != nil && err == nil && st.Type.IsDir() {
 				targetURL = targetURL + string(clnt.GetURL().Separator)
-				clnt, err = newClient(targetURL)
-				fatalIf(err.Trace(targetURL), "Unable to initialize target `"+targetURL+"`.")
+				clnt, err = NewClient(targetURL)
+				FatalIf(err.Trace(targetURL), "Unable to initialize target `"+targetURL+"`.")
 			}
 		}
 

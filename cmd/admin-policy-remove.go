@@ -66,9 +66,9 @@ func mainAdminPolicyRemove(ctx *cli.Context) error {
 
 	// Create a new MinIO Admin Client
 	client, err := newAdminClient(aliasedURL)
-	fatalIf(err, "Unable to initialize admin connection.")
+	FatalIf(err, "Unable to initialize admin connection.")
 
-	fatalIf(probe.NewError(client.RemoveCannedPolicy(globalContext, args.Get(1))).Trace(args...), "Cannot remove policy")
+	FatalIf(probe.NewError(client.RemoveCannedPolicy(GlobalContext, args.Get(1))).Trace(args...), "Cannot remove policy")
 
 	printMsg(userPolicyMessage{
 		op:     "remove",

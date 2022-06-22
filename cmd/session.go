@@ -65,7 +65,7 @@ func getSessionDir() (string, *probe.Error) {
 // isSessionDirExists - verify if session directory exists.
 func isSessionDirExists() bool {
 	sessionDir, err := getSessionDir()
-	fatalIf(err.Trace(), "Unable to determine session folder.")
+	FatalIf(err.Trace(), "Unable to determine session folder.")
 
 	if _, e := os.Stat(sessionDir); e != nil {
 		return false
@@ -87,7 +87,7 @@ func getSessionFile(sid string) (string, *probe.Error) {
 // isSessionExists verifies if given session exists.
 func isSessionExists(sid string) bool {
 	sessionFile, err := getSessionFile(sid)
-	fatalIf(err.Trace(sid), "Unable to determine session filename for `"+sid+"`.")
+	FatalIf(err.Trace(sid), "Unable to determine session filename for `"+sid+"`.")
 
 	if _, e := os.Stat(sessionFile); e != nil {
 		return false
@@ -110,10 +110,10 @@ func getSessionDataFile(sid string) (string, *probe.Error) {
 // getSessionIDs - get all active sessions.
 func getSessionIDs() (sids []string) {
 	sessionDir, err := getSessionDir()
-	fatalIf(err.Trace(), "Unable to access session folder.")
+	FatalIf(err.Trace(), "Unable to access session folder.")
 
 	sessionList, e := filepath.Glob(sessionDir + "/*.json")
-	fatalIf(probe.NewError(e), "Unable to access session folder `"+sessionDir+"`.")
+	FatalIf(probe.NewError(e), "Unable to access session folder `"+sessionDir+"`.")
 
 	for _, path := range sessionList {
 		sids = append(sids, strings.TrimSuffix(filepath.Base(path), ".json"))

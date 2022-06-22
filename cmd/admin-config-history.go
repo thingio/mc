@@ -89,7 +89,7 @@ func (u configHistoryMessage) String() string {
 	var s strings.Builder
 	w := tabwriter.NewWriter(&s, 1, 8, 2, ' ', 0)
 	e := HistoryTemplate.Execute(w, u.Entries)
-	fatalIf(probe.NewError(e), "Cannot initialize template writer")
+	FatalIf(probe.NewError(e), "Cannot initialize template writer")
 
 	w.Flush()
 	return s.String()
@@ -99,7 +99,7 @@ func (u configHistoryMessage) String() string {
 func (u configHistoryMessage) JSON() string {
 	u.Status = "success"
 	statusJSONBytes, e := json.MarshalIndent(u, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 
 	return string(statusJSONBytes)
 }
@@ -124,18 +124,18 @@ func mainAdminConfigHistory(ctx *cli.Context) error {
 
 	// Create a new MinIO Admin Client
 	client, err := newAdminClient(aliasedURL)
-	fatalIf(err, "Unable to initialize admin connection.")
+	FatalIf(err, "Unable to initialize admin connection.")
 
 	if ctx.IsSet("clear") {
-		fatalIf(probe.NewError(client.ClearConfigHistoryKV(globalContext, "all")), "Cannot clear server configuration.")
+		FatalIf(probe.NewError(client.ClearConfigHistoryKV(GlobalContext, "all")), "Cannot clear server configuration.")
 
 		// Print
 		printMsg(configHistoryMessage{})
 		return nil
 	}
 
-	chEntries, e := client.ListConfigHistoryKV(globalContext, ctx.Int("count"))
-	fatalIf(probe.NewError(e), "Cannot list server history configuration.")
+	chEntries, e := client.ListConfigHistoryKV(GlobalContext, ctx.Int("count"))
+	FatalIf(probe.NewError(e), "Cannot list server history configuration.")
 
 	hentries := make([]historyEntry, len(chEntries))
 	for i, chEntry := range chEntries {

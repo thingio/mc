@@ -65,7 +65,7 @@ func completeAdminConfigKeys(aliasPath string, keyPrefix string) (prediction []s
 		return nil
 	}
 
-	h, e := clnt.HelpConfigKV(globalContext, "", "", false)
+	h, e := clnt.HelpConfigKV(GlobalContext, "", "", false)
 	if e != nil {
 		return nil
 	}
@@ -86,7 +86,7 @@ func completeS3Path(s3Path string) (prediction []string) {
 
 	// Convert alias/bucket/incompl to alias/bucket/ to list its contents
 	parentDirPath := filepath.Dir(s3Path) + "/"
-	clnt, err := newClient(parentDirPath)
+	clnt, err := NewClient(parentDirPath)
 	if err != nil {
 		return nil
 	}
@@ -96,7 +96,7 @@ func completeS3Path(s3Path string) (prediction []string) {
 
 	// List dirPath content and only pick elements that corresponds
 	// to the path that we want to complete
-	for content := range clnt.List(globalContext, false, false, false, DirFirst) {
+	for content := range clnt.List(GlobalContext, false, false, false, DirFirst) {
 		cmplS3Path := alias + getKey(content)
 		if content.Type.IsDir() {
 			if !strings.HasSuffix(cmplS3Path, "/") {

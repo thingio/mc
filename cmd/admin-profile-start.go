@@ -90,7 +90,7 @@ func checkAdminProfileStartSyntax(ctx *cli.Context) {
 		}
 	}
 	if !supportedProfiler {
-		fatalIf(errDummy().Trace(ctx.String("type")),
+		FatalIf(errDummy().Trace(ctx.String("type")),
 			"Profiler type unrecognized. Possible values are: %v.", supportedProfilerTypes)
 	}
 }
@@ -109,13 +109,13 @@ func mainAdminProfileStart(ctx *cli.Context) error {
 	// Create a new MinIO Admin Client
 	client, err := newAdminClient(aliasedURL)
 	if err != nil {
-		fatalIf(err.Trace(aliasedURL), "Cannot initialize admin client.")
+		FatalIf(err.Trace(aliasedURL), "Cannot initialize admin client.")
 		return nil
 	}
 
 	// Start profile
-	_, cmdErr := client.StartProfiling(globalContext, madmin.ProfilerType(profilers))
-	fatalIf(probe.NewError(cmdErr), "Unable to start profile.")
+	_, cmdErr := client.StartProfiling(GlobalContext, madmin.ProfilerType(profilers))
+	FatalIf(probe.NewError(cmdErr), "Unable to start profile.")
 
 	console.Infoln("Profile data successfully started.")
 	return nil

@@ -88,7 +88,7 @@ func (i ilmRmMessage) String() string {
 
 func (i ilmRmMessage) JSON() string {
 	msgBytes, e := json.MarshalIndent(i, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 	return string(msgBytes)
 }
 
@@ -101,7 +101,7 @@ func checkILMRemoveSyntax(ctx *cli.Context) {
 	ilmForce := ctx.Bool("force")
 	forceChk := (ilmAll && ilmForce) || (!ilmAll && !ilmForce)
 	if !forceChk {
-		fatalIf(errInvalidArgument(),
+		FatalIf(errInvalidArgument(),
 			"It is mandatory to specify --all and --force flag together for mc "+ctx.Command.FullName()+".")
 	}
 	if ilmAll && ilmForce {
@@ -110,12 +110,12 @@ func checkILMRemoveSyntax(ctx *cli.Context) {
 
 	ilmID := ctx.String("id")
 	if ilmID == "" {
-		fatalIf(errInvalidArgument().Trace(ilmID), "ilm ID cannot be empty")
+		FatalIf(errInvalidArgument().Trace(ilmID), "ilm ID cannot be empty")
 	}
 }
 
 func mainILMRemove(cliCtx *cli.Context) error {
-	ctx, cancelILMImport := context.WithCancel(globalContext)
+	ctx, cancelILMImport := context.WithCancel(GlobalContext)
 	defer cancelILMImport()
 
 	checkILMRemoveSyntax(cliCtx)
@@ -123,11 +123,11 @@ func mainILMRemove(cliCtx *cli.Context) error {
 	args := cliCtx.Args()
 	urlStr := args.Get(0)
 
-	client, err := newClient(urlStr)
-	fatalIf(err.Trace(args...), "Unable to initialize client for "+urlStr+".")
+	client, err := NewClient(urlStr)
+	FatalIf(err.Trace(args...), "Unable to initialize client for "+urlStr+".")
 
 	ilmCfg, err := client.GetLifecycle(ctx)
-	fatalIf(err.Trace(urlStr), "Unable to fetch lifecycle rules")
+	FatalIf(err.Trace(urlStr), "Unable to fetch lifecycle rules")
 
 	ilmAll := cliCtx.Bool("all")
 	ilmForce := cliCtx.Bool("force")
@@ -136,10 +136,10 @@ func mainILMRemove(cliCtx *cli.Context) error {
 		ilmCfg.Rules = nil // Remove all rules
 	} else {
 		ilmCfg, err = ilm.RemoveILMRule(ilmCfg, cliCtx.String("id"))
-		fatalIf(err.Trace(urlStr, cliCtx.String("id")), "Unable to remove rule by id")
+		FatalIf(err.Trace(urlStr, cliCtx.String("id")), "Unable to remove rule by id")
 	}
 
-	fatalIf(client.SetLifecycle(ctx, ilmCfg).Trace(urlStr), "Unable to set lifecycle rules")
+	FatalIf(client.SetLifecycle(ctx, ilmCfg).Trace(urlStr), "Unable to set lifecycle rules")
 
 	printMsg(ilmRmMessage{
 		Status: "success",

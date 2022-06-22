@@ -21,8 +21,8 @@ import (
 	"os/signal"
 )
 
-// trapSignals traps the registered signals and cancel the global context.
-func trapSignals(sig ...os.Signal) {
+// TrapSignals traps the registered signals and cancel the global context.
+func TrapSignals(sig ...os.Signal) {
 	// channel to receive signals.
 	sigCh := make(chan os.Signal, 1)
 	defer close(sigCh)

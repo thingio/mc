@@ -141,7 +141,7 @@ func (qs *QuietStatus) errorIf(err *probe.Error, msg string) {
 }
 
 func (qs *QuietStatus) fatalIf(err *probe.Error, msg string) {
-	fatalIf(err, msg)
+	FatalIf(err, msg)
 }
 
 // NewProgressStatus returns a progress status object
@@ -246,7 +246,7 @@ func (ps *ProgressStatus) errorIf(err *probe.Error, msg string) {
 func (ps *ProgressStatus) fatalIf(err *probe.Error, msg string) {
 	// remove progressbar
 	console.Eraseline()
-	fatalIf(err, msg)
+	FatalIf(err, msg)
 
 	ps.progressBar.Update()
 }

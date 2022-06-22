@@ -71,7 +71,7 @@ EXAMPLES:
 func checkAdminUserAddSyntax(ctx *cli.Context) {
 	argsNr := len(ctx.Args())
 	if argsNr > 3 || argsNr < 1 {
-		fatalIf(errInvalidArgument().Trace(ctx.Args().Tail()...),
+		FatalIf(errInvalidArgument().Trace(ctx.Args().Tail()...),
 			"Incorrect number of arguments for user add command.")
 	}
 }
@@ -123,7 +123,7 @@ func (u userMessage) String() string {
 func (u userMessage) JSON() string {
 	u.Status = "success"
 	jsonMessageBytes, e := json.MarshalIndent(u, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 
 	return string(jsonMessageBytes)
 }
@@ -178,9 +178,9 @@ func mainAdminUserAdd(ctx *cli.Context) error {
 
 	// Create a new MinIO Admin Client
 	client, err := newAdminClient(aliasedURL)
-	fatalIf(err, "Unable to initialize admin connection.")
+	FatalIf(err, "Unable to initialize admin connection.")
 
-	fatalIf(probe.NewError(client.AddUser(globalContext, accessKey, secretKey)).Trace(args...), "Cannot add new user")
+	FatalIf(probe.NewError(client.AddUser(GlobalContext, accessKey, secretKey)).Trace(args...), "Cannot add new user")
 
 	printMsg(userMessage{
 		op:         "add",

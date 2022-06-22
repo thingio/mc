@@ -72,7 +72,7 @@ func parseKey(sseKeys string) (sse string, err *probe.Error) {
 }
 
 // parse and return encryption key pairs per alias.
-func getEncKeys(ctx *cli.Context) (map[string][]prefixSSEPair, *probe.Error) {
+func getEncKeys(ctx *cli.Context) (map[string][]PrefixSSEPair, *probe.Error) {
 	sseServer := os.Getenv("MC_ENCRYPT")
 	if prefix := ctx.String("encrypt"); prefix != "" {
 		sseServer = prefix
@@ -104,7 +104,7 @@ func getEncKeys(ctx *cli.Context) (map[string][]prefixSSEPair, *probe.Error) {
 // Check if the passed URL represents a folder. It may or may not exist yet.
 // If it exists, we can easily check if it is a folder, if it doesn't exist,
 // we can guess if the url is a folder from how it looks.
-func isAliasURLDir(ctx context.Context, aliasURL string, keys map[string][]prefixSSEPair) bool {
+func isAliasURLDir(ctx context.Context, aliasURL string, keys map[string][]PrefixSSEPair) bool {
 	// If the target url exists, check if it is a directory
 	// and return immediately.
 	_, targetContent, err := url2Stat(ctx, aliasURL, false, keys)
@@ -141,7 +141,7 @@ func isAliasURLDir(ctx context.Context, aliasURL string, keys map[string][]prefi
 }
 
 // getSourceStreamMetadataFromURL gets a reader from URL.
-func getSourceStreamMetadataFromURL(ctx context.Context, urlStr string, encKeyDB map[string][]prefixSSEPair) (reader io.ReadCloser,
+func getSourceStreamMetadataFromURL(ctx context.Context, urlStr string, encKeyDB map[string][]PrefixSSEPair) (reader io.ReadCloser,
 	metadata map[string]string, err *probe.Error) {
 	alias, urlStrFull, _, err := expandAlias(urlStr)
 	if err != nil {
@@ -152,7 +152,7 @@ func getSourceStreamMetadataFromURL(ctx context.Context, urlStr string, encKeyDB
 }
 
 // getSourceStreamFromURL gets a reader from URL.
-func getSourceStreamFromURL(ctx context.Context, urlStr string, encKeyDB map[string][]prefixSSEPair) (reader io.ReadCloser, err *probe.Error) {
+func getSourceStreamFromURL(ctx context.Context, urlStr string, encKeyDB map[string][]PrefixSSEPair) (reader io.ReadCloser, err *probe.Error) {
 	alias, urlStrFull, _, err := expandAlias(urlStr)
 	if err != nil {
 		return nil, err.Trace(urlStr)
@@ -394,7 +394,7 @@ func getAllMetadata(ctx context.Context, sourceAlias, sourceURLStr string, srcSS
 // uploadSourceToTargetURL - uploads to targetURL from source.
 // optionally optimizes copy for object sizes <= 5GiB by using
 // server side copy operation.
-func uploadSourceToTargetURL(ctx context.Context, urls URLs, progress io.Reader, encKeyDB map[string][]prefixSSEPair, preserve bool) URLs {
+func uploadSourceToTargetURL(ctx context.Context, urls URLs, progress io.Reader, encKeyDB map[string][]PrefixSSEPair, preserve bool) URLs {
 	sourceAlias := urls.SourceAlias
 	sourceURL := urls.SourceContent.URL
 	targetAlias := urls.TargetAlias
@@ -572,8 +572,8 @@ func newClientFromAlias(alias, urlStr string) (Client, *probe.Error) {
 // urlRgx - verify if aliased url is real URL.
 var urlRgx = regexp.MustCompile("^https?://")
 
-// newClient gives a new client interface
-func newClient(aliasedURL string) (Client, *probe.Error) {
+// NewClient gives a new client interface
+func NewClient(aliasedURL string) (Client, *probe.Error) {
 	alias, urlStrFull, hostCfg, err := expandAlias(aliasedURL)
 	if err != nil {
 		return nil, err.Trace(aliasedURL)

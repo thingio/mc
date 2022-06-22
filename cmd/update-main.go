@@ -442,7 +442,7 @@ func (s updateMessage) String() string {
 func (s updateMessage) JSON() string {
 	s.Status = "success"
 	updateJSONBytes, e := json.MarshalIndent(s, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 
 	return string(updateJSONBytes)
 }

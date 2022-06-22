@@ -67,7 +67,7 @@ EXAMPLES:
 }
 
 // checkShareDownloadSyntax - validate command-line args.
-func checkShareDownloadSyntax(ctx context.Context, cliCtx *cli.Context, encKeyDB map[string][]prefixSSEPair) {
+func checkShareDownloadSyntax(ctx context.Context, cliCtx *cli.Context, encKeyDB map[string][]PrefixSSEPair) {
 	args := cliCtx.Args()
 	if !args.Present() {
 		cli.ShowCommandHelpAndExit(cliCtx, "download", 1) // last argument is exit code.
@@ -79,15 +79,15 @@ func checkShareDownloadSyntax(ctx context.Context, cliCtx *cli.Context, encKeyDB
 	if expireArg != "" {
 		var e error
 		expiry, e = time.ParseDuration(expireArg)
-		fatalIf(probe.NewError(e), "Unable to parse expire=`"+expireArg+"`.")
+		FatalIf(probe.NewError(e), "Unable to parse expire=`"+expireArg+"`.")
 	}
 
 	// Validate expiry.
 	if expiry.Seconds() < 1 {
-		fatalIf(errDummy().Trace(expiry.String()), "Expiry cannot be lesser than 1 second.")
+		FatalIf(errDummy().Trace(expiry.String()), "Expiry cannot be lesser than 1 second.")
 	}
 	if expiry.Seconds() > 604800 {
-		fatalIf(errDummy().Trace(expiry.String()), "Expiry cannot be larger than 7 days.")
+		FatalIf(errDummy().Trace(expiry.String()), "Expiry cannot be larger than 7 days.")
 	}
 
 	// Validate if object exists only if the `--recursive` flag was NOT specified
@@ -96,7 +96,7 @@ func checkShareDownloadSyntax(ctx context.Context, cliCtx *cli.Context, encKeyDB
 		for _, url := range cliCtx.Args() {
 			_, _, err := url2Stat(ctx, url, false, encKeyDB)
 			if err != nil {
-				fatalIf(err.Trace(url), "Unable to stat `"+url+"`.")
+				FatalIf(err.Trace(url), "Unable to stat `"+url+"`.")
 			}
 		}
 	}
@@ -192,12 +192,12 @@ func doShareDownloadURL(ctx context.Context, targetURL string, isRecursive bool,
 
 // main for share download.
 func mainShareDownload(cliCtx *cli.Context) error {
-	ctx, cancelShareDownload := context.WithCancel(globalContext)
+	ctx, cancelShareDownload := context.WithCancel(GlobalContext)
 	defer cancelShareDownload()
 
 	// Parse encryption keys per command.
 	encKeyDB, err := getEncKeys(cliCtx)
-	fatalIf(err, "Unable to parse encryption keys.")
+	FatalIf(err, "Unable to parse encryption keys.")
 
 	// check input arguments.
 	checkShareDownloadSyntax(ctx, cliCtx, encKeyDB)
@@ -214,7 +214,7 @@ func mainShareDownload(cliCtx *cli.Context) error {
 	if cliCtx.String("expire") != "" {
 		var e error
 		expiry, e = time.ParseDuration(cliCtx.String("expire"))
-		fatalIf(probe.NewError(e), "Unable to parse expire=`"+cliCtx.String("expire")+"`.")
+		FatalIf(probe.NewError(e), "Unable to parse expire=`"+cliCtx.String("expire")+"`.")
 	}
 
 	for _, targetURL := range cliCtx.Args() {
@@ -222,9 +222,9 @@ func mainShareDownload(cliCtx *cli.Context) error {
 		if err != nil {
 			switch err.ToGoError().(type) {
 			case APINotImplemented:
-				fatalIf(err.Trace(), "Unable to share a non S3 url `"+targetURL+"`.")
+				FatalIf(err.Trace(), "Unable to share a non S3 url `"+targetURL+"`.")
 			default:
-				fatalIf(err.Trace(targetURL), "Unable to share target `"+targetURL+"`.")
+				FatalIf(err.Trace(targetURL), "Unable to share target `"+targetURL+"`.")
 			}
 		}
 	}

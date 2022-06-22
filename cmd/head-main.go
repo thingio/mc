@@ -77,7 +77,7 @@ EXAMPLES:
 }
 
 // headURL displays contents of a URL to stdout.
-func headURL(sourceURL string, encKeyDB map[string][]prefixSSEPair, nlines int64) *probe.Error {
+func headURL(sourceURL string, encKeyDB map[string][]PrefixSSEPair, nlines int64) *probe.Error {
 	var reader io.ReadCloser
 	switch sourceURL {
 	case "-":
@@ -154,7 +154,7 @@ func headOut(r io.Reader, nlines int64) *probe.Error {
 func mainHead(ctx *cli.Context) error {
 	// Parse encryption keys per command.
 	encKeyDB, err := getEncKeys(ctx)
-	fatalIf(err, "Unable to parse encryption keys.")
+	FatalIf(err, "Unable to parse encryption keys.")
 
 	// Set command flags from context.
 	stdinMode := false
@@ -164,13 +164,13 @@ func mainHead(ctx *cli.Context) error {
 
 	// handle std input data.
 	if stdinMode {
-		fatalIf(headOut(os.Stdin, ctx.Int64("lines")).Trace(), "Unable to read from standard input.")
+		FatalIf(headOut(os.Stdin, ctx.Int64("lines")).Trace(), "Unable to read from standard input.")
 		return nil
 	}
 
 	// Convert arguments to URLs: expand alias, fix format.
 	for _, url := range ctx.Args() {
-		fatalIf(headURL(url, encKeyDB, ctx.Int64("lines")).Trace(url), "Unable to read from `"+url+"`.")
+		FatalIf(headURL(url, encKeyDB, ctx.Int64("lines")).Trace(url), "Unable to read from `"+url+"`.")
 	}
 
 	return nil

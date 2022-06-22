@@ -30,7 +30,7 @@ type URLs struct {
 	TotalSize        int64
 	MD5              bool
 	DisableMultipart bool
-	encKeyDB         map[string][]prefixSSEPair
+	encKeyDB         map[string][]PrefixSSEPair
 	Error            *probe.Error `json:"-"`
 }
 

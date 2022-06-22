@@ -94,7 +94,7 @@ func (d diffMessage) String() string {
 	case differInAASourceMTime:
 		msg = console.Colorize("DiffMMSourceMTime", "! "+d.SecondURL)
 	default:
-		fatalIf(errDummy().Trace(d.FirstURL, d.SecondURL),
+		FatalIf(errDummy().Trace(d.FirstURL, d.SecondURL),
 			"Unhandled difference between `"+d.FirstURL+"` and `"+d.SecondURL+"`.")
 	}
 	return msg
@@ -105,18 +105,18 @@ func (d diffMessage) String() string {
 func (d diffMessage) JSON() string {
 	d.Status = "success"
 	diffJSONBytes, e := json.MarshalIndent(d, "", " ")
-	fatalIf(probe.NewError(e),
+	FatalIf(probe.NewError(e),
 		"Unable to marshal diff message `"+d.FirstURL+"`, `"+d.SecondURL+"` and `"+string(d.Diff)+"`.")
 	return string(diffJSONBytes)
 }
 
-func checkDiffSyntax(ctx context.Context, cliCtx *cli.Context, encKeyDB map[string][]prefixSSEPair) {
+func checkDiffSyntax(ctx context.Context, cliCtx *cli.Context, encKeyDB map[string][]PrefixSSEPair) {
 	if len(cliCtx.Args()) != 2 {
 		cli.ShowCommandHelpAndExit(cliCtx, "diff", 1) // last argument is exit code
 	}
 	for _, arg := range cliCtx.Args() {
 		if strings.TrimSpace(arg) == "" {
-			fatalIf(errInvalidArgument().Trace(cliCtx.Args()...), "Unable to validate empty argument.")
+			FatalIf(errInvalidArgument().Trace(cliCtx.Args()...), "Unable to validate empty argument.")
 		}
 	}
 	URLs := cliCtx.Args()
@@ -128,23 +128,23 @@ func checkDiffSyntax(ctx context.Context, cliCtx *cli.Context, encKeyDB map[stri
 	// Verify if firstURL is accessible.
 	_, firstContent, err := url2Stat(ctx, firstURL, false, encKeyDB)
 	if err != nil {
-		fatalIf(err.Trace(firstURL), fmt.Sprintf("Unable to stat '%s'.", firstURL))
+		FatalIf(err.Trace(firstURL), fmt.Sprintf("Unable to stat '%s'.", firstURL))
 	}
 
 	// Verify if its a directory.
 	if !firstContent.Type.IsDir() {
-		fatalIf(errInvalidArgument().Trace(firstURL), fmt.Sprintf("`%s` is not a folder.", firstURL))
+		FatalIf(errInvalidArgument().Trace(firstURL), fmt.Sprintf("`%s` is not a folder.", firstURL))
 	}
 
 	// Verify if secondURL is accessible.
 	_, secondContent, err := url2Stat(ctx, secondURL, false, encKeyDB)
 	if err != nil {
-		fatalIf(err.Trace(secondURL), fmt.Sprintf("Unable to stat '%s'.", secondURL))
+		FatalIf(err.Trace(secondURL), fmt.Sprintf("Unable to stat '%s'.", secondURL))
 	}
 
 	// Verify if its a directory.
 	if !secondContent.Type.IsDir() {
-		fatalIf(errInvalidArgument().Trace(secondURL), fmt.Sprintf("`%s` is not a folder.", secondURL))
+		FatalIf(errInvalidArgument().Trace(secondURL), fmt.Sprintf("`%s` is not a folder.", secondURL))
 	}
 }
 
@@ -166,13 +166,13 @@ func doDiffMain(ctx context.Context, firstURL, secondURL string) error {
 
 	firstClient, err := newClientFromAlias(firstAlias, firstURL)
 	if err != nil {
-		fatalIf(err.Trace(firstAlias, firstURL, secondAlias, secondURL),
+		FatalIf(err.Trace(firstAlias, firstURL, secondAlias, secondURL),
 			fmt.Sprintf("Failed to diff '%s' and '%s'", firstURL, secondURL))
 	}
 
 	secondClient, err := newClientFromAlias(secondAlias, secondURL)
 	if err != nil {
-		fatalIf(err.Trace(firstAlias, firstURL, secondAlias, secondURL),
+		FatalIf(err.Trace(firstAlias, firstURL, secondAlias, secondURL),
 			fmt.Sprintf("Failed to diff '%s' and '%s'", firstURL, secondURL))
 	}
 
@@ -191,12 +191,12 @@ func doDiffMain(ctx context.Context, firstURL, secondURL string) error {
 
 // mainDiff main for 'diff'.
 func mainDiff(cliCtx *cli.Context) error {
-	ctx, cancelDiff := context.WithCancel(globalContext)
+	ctx, cancelDiff := context.WithCancel(GlobalContext)
 	defer cancelDiff()
 
 	// Parse encryption keys per command.
 	encKeyDB, err := getEncKeys(cliCtx)
-	fatalIf(err, "Unable to parse encryption keys.")
+	FatalIf(err, "Unable to parse encryption keys.")
 
 	// check 'diff' cli arguments.
 	checkDiffSyntax(ctx, cliCtx, encKeyDB)

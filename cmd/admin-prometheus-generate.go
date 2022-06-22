@@ -76,7 +76,7 @@ func (c PrometheusConfig) String() string {
 // JSON jsonified prometheus config.
 func (c PrometheusConfig) JSON() string {
 	jsonMessageBytes, e := json.MarshalIndent(c.ScrapeConfigs[0], "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 	return string(jsonMessageBytes)
 }
 
@@ -97,7 +97,7 @@ func (t StatConfig) String() string {
 // JSON jsonified stat config.
 func (t StatConfig) JSON() string {
 	jsonMessageBytes, e := json.MarshalIndent(t.Targets, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 	return string(jsonMessageBytes)
 }
 
@@ -141,12 +141,12 @@ func generatePrometheusConfig(ctx *cli.Context) error {
 	alias := cleanAlias(args.Get(0))
 
 	if !isValidAlias(alias) {
-		fatalIf(errInvalidAlias(alias), "Invalid alias.")
+		FatalIf(errInvalidAlias(alias), "Invalid alias.")
 	}
 
 	hostConfig := mustGetHostConfig(alias)
 	if hostConfig == nil {
-		fatalIf(errInvalidAliasedURL(alias), "No such alias `"+alias+"` found.")
+		FatalIf(errInvalidAliasedURL(alias), "No such alias `"+alias+"` found.")
 		return nil
 	}
 

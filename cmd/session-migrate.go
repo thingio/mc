@@ -34,20 +34,20 @@ func migrateSessionV7ToV8() {
 			if os.IsNotExist(err.ToGoError()) {
 				continue
 			}
-			fatalIf(err.Trace(sid), "Unable to load version `7`. Migration failed please report this issue at https://github.com/minio/mc/issues.")
+			FatalIf(err.Trace(sid), "Unable to load version `7`. Migration failed please report this issue at https://github.com/minio/mc/issues.")
 		}
 
 		// Close underlying session data file.
 		sV7.DataFP.Close()
 
 		sessionVersion, e := strconv.Atoi(sV7.Header.Version)
-		fatalIf(probe.NewError(e), "Unable to load version `7`. Migration failed please report this issue at https://github.com/minio/mc/issues.")
+		FatalIf(probe.NewError(e), "Unable to load version `7`. Migration failed please report this issue at https://github.com/minio/mc/issues.")
 		if sessionVersion > 7 { // It is new format.
 			continue
 		}
 
 		sessionFile, err := getSessionFile(sid)
-		fatalIf(err.Trace(sid), "Unable to get session file.")
+		FatalIf(err.Trace(sid), "Unable to get session file.")
 
 		// Initialize v7 header and migrate to new config.
 		sV8Header := &sessionV8Header{}
@@ -71,10 +71,10 @@ func migrateSessionV7ToV8() {
 		sV8Header.GlobalBoolFlags["insecure"] = false
 
 		qs, e := quick.NewConfig(sV8Header, nil)
-		fatalIf(probe.NewError(e).Trace(sid), "Unable to initialize quick config for session '8' header.")
+		FatalIf(probe.NewError(e).Trace(sid), "Unable to initialize quick config for session '8' header.")
 
 		e = qs.Save(sessionFile)
-		fatalIf(probe.NewError(e).Trace(sid, sessionFile), "Unable to migrate session from '7' to '8'.")
+		FatalIf(probe.NewError(e).Trace(sid, sessionFile), "Unable to migrate session from '7' to '8'.")
 
 		console.Println("Successfully migrated `" + sessionFile + "` from version `" + sV7.Header.Version + "` to " + "`" + sV8Header.Version + "`.")
 	}
@@ -89,17 +89,17 @@ func migrateSessionV6ToV7() {
 			if os.IsNotExist(err.ToGoError()) {
 				continue
 			}
-			fatalIf(err.Trace(sid), "Unable to load version `6`. Migration failed please report this issue at https://github.com/minio/mc/issues.")
+			FatalIf(err.Trace(sid), "Unable to load version `6`. Migration failed please report this issue at https://github.com/minio/mc/issues.")
 		}
 
 		sessionVersion, e := strconv.Atoi(sV6Header.Version)
-		fatalIf(probe.NewError(e), "Unable to load version `6`. Migration failed please report this issue at https://github.com/minio/mc/issues.")
+		FatalIf(probe.NewError(e), "Unable to load version `6`. Migration failed please report this issue at https://github.com/minio/mc/issues.")
 		if sessionVersion > 6 { // It is new format.
 			continue
 		}
 
 		sessionFile, err := getSessionFile(sid)
-		fatalIf(err.Trace(sid), "Unable to get session file.")
+		FatalIf(err.Trace(sid), "Unable to get session file.")
 
 		// Initialize v7 header and migrate to new config.
 		sV7Header := &sessionV7Header{}
@@ -120,10 +120,10 @@ func migrateSessionV6ToV7() {
 		sV7Header.TotalObjects = sV6Header.TotalObjects
 
 		qs, e := quick.NewConfig(sV7Header, nil)
-		fatalIf(probe.NewError(e).Trace(sid), "Unable to initialize quick config for session '7' header.")
+		FatalIf(probe.NewError(e).Trace(sid), "Unable to initialize quick config for session '7' header.")
 
 		e = qs.Save(sessionFile)
-		fatalIf(probe.NewError(e).Trace(sid, sessionFile), "Unable to migrate session from '6' to '7'.")
+		FatalIf(probe.NewError(e).Trace(sid, sessionFile), "Unable to migrate session from '6' to '7'.")
 
 		console.Println("Successfully migrated `" + sessionFile + "` from version `" + sV6Header.Version + "` to " + "`" + sV7Header.Version + "`.")
 	}
@@ -139,11 +139,11 @@ func migrateSessionV5ToV6() {
 			if os.IsNotExist(err.ToGoError()) {
 				continue
 			}
-			fatalIf(err.Trace(sid), "Unable to load version `6`. Migration failed please report this issue at https://github.com/minio/mc/issues.")
+			FatalIf(err.Trace(sid), "Unable to load version `6`. Migration failed please report this issue at https://github.com/minio/mc/issues.")
 		}
 
 		sessionVersion, e := strconv.Atoi(sV6Header.Version)
-		fatalIf(probe.NewError(e), "Unable to load version `6`. Migration failed please report this issue at https://github.com/minio/mc/issues.")
+		FatalIf(probe.NewError(e), "Unable to load version `6`. Migration failed please report this issue at https://github.com/minio/mc/issues.")
 		if sessionVersion > 5 { // It is new format.
 			continue
 		}
@@ -151,17 +151,17 @@ func migrateSessionV5ToV6() {
 		/*** Remove all session files older than v6 ***/
 
 		sessionFile, err := getSessionFile(sid)
-		fatalIf(err.Trace(sid), "Unable to get session file.")
+		FatalIf(err.Trace(sid), "Unable to get session file.")
 
 		sessionDataFile, err := getSessionDataFile(sid)
-		fatalIf(err.Trace(sid), "Unable to get session data file.")
+		FatalIf(err.Trace(sid), "Unable to get session data file.")
 
 		console.Println("Removing unsupported session file `" + sessionFile + "` version `" + sV6Header.Version + "`.")
 		if e := os.Remove(sessionFile); e != nil {
-			fatalIf(probe.NewError(e), "Unable to remove version `"+sV6Header.Version+"` session file `"+sessionFile+"`.")
+			FatalIf(probe.NewError(e), "Unable to remove version `"+sV6Header.Version+"` session file `"+sessionFile+"`.")
 		}
 		if e := os.Remove(sessionDataFile); e != nil {
-			fatalIf(probe.NewError(e), "Unable to remove version `"+sV6Header.Version+"` session data file `"+sessionDataFile+"`.")
+			FatalIf(probe.NewError(e), "Unable to remove version `"+sV6Header.Version+"` session data file `"+sessionDataFile+"`.")
 		}
 	}
 }

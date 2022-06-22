@@ -99,7 +99,7 @@ func (s makeBucketMessage) String() string {
 // JSON jsonified make bucket message.
 func (s makeBucketMessage) JSON() string {
 	makeBucketJSONBytes, e := json.MarshalIndent(s, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 
 	return string(makeBucketJSONBytes)
 }
@@ -128,14 +128,14 @@ func mainMakeBucket(cli *cli.Context) error {
 	var cErr error
 	for _, targetURL := range cli.Args() {
 		// Instantiate client for URL.
-		clnt, err := newClient(targetURL)
+		clnt, err := NewClient(targetURL)
 		if err != nil {
 			errorIf(err.Trace(targetURL), "Invalid target `"+targetURL+"`.")
 			cErr = exitStatus(globalErrorExitStatus)
 			continue
 		}
 
-		ctx, cancelMakeBucket := context.WithCancel(globalContext)
+		ctx, cancelMakeBucket := context.WithCancel(GlobalContext)
 		defer cancelMakeBucket()
 
 		// Make bucket.

@@ -89,11 +89,11 @@ func (r duMessage) String() string {
 // JSON'ified message for scripting.
 func (r duMessage) JSON() string {
 	msgBytes, e := json.MarshalIndent(r, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 	return string(msgBytes)
 }
 
-func du(urlStr string, depth int, encKeyDB map[string][]prefixSSEPair) (int64, error) {
+func du(urlStr string, depth int, encKeyDB map[string][]PrefixSSEPair) (int64, error) {
 	targetAlias, targetURL, _ := mustExpandAlias(urlStr)
 	if !strings.HasSuffix(targetURL, "/") {
 		targetURL += "/"
@@ -107,7 +107,7 @@ func du(urlStr string, depth int, encKeyDB map[string][]prefixSSEPair) (int64, e
 
 	isRecursive := false
 	isIncomplete := false
-	contentCh := clnt.List(globalContext, isRecursive, isIncomplete, false, DirFirst)
+	contentCh := clnt.List(GlobalContext, isRecursive, isIncomplete, false, DirFirst)
 	size := int64(0)
 	for content := range contentCh {
 		if content.Err != nil {
@@ -173,7 +173,7 @@ func mainDu(ctx *cli.Context) error {
 
 	// Parse encryption keys per command.
 	encKeyDB, err := getEncKeys(ctx)
-	fatalIf(err, "Unable to parse encryption keys.")
+	FatalIf(err, "Unable to parse encryption keys.")
 
 	// du specific flags.
 	depth := ctx.Int("depth")

@@ -68,7 +68,7 @@ func (q quotaMessage) String() string {
 
 func (q quotaMessage) JSON() string {
 	jsonMessageBytes, e := json.MarshalIndent(q, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 
 	return string(jsonMessageBytes)
 }
@@ -117,13 +117,13 @@ func checkAdminBucketQuotaSyntax(ctx *cli.Context) {
 	}
 
 	if ctx.IsSet("hard") && ctx.IsSet("fifo") {
-		fatalIf(errInvalidArgument(), "Only one of --hard or --fifo flags can be set")
+		FatalIf(errInvalidArgument(), "Only one of --hard or --fifo flags can be set")
 	}
 	if (ctx.IsSet("hard") || ctx.IsSet("fifo")) && len(ctx.Args()) == 0 {
-		fatalIf(errInvalidArgument().Trace(ctx.Args()...), "please specify bucket and quota")
+		FatalIf(errInvalidArgument().Trace(ctx.Args()...), "please specify bucket and quota")
 	}
 	if ctx.IsSet("clear") && len(ctx.Args()) == 0 {
-		fatalIf(errInvalidArgument().Trace(ctx.Args()...), "clear flag must be passed with target alone")
+		FatalIf(errInvalidArgument().Trace(ctx.Args()...), "clear flag must be passed with target alone")
 	}
 }
 
@@ -140,7 +140,7 @@ func mainAdminBucketQuota(ctx *cli.Context) error {
 
 	// Create a new MinIO Admin Client
 	client, err := newAdminClient(aliasedURL)
-	fatalIf(err, "Unable to initialize admin connection.")
+	FatalIf(err, "Unable to initialize admin connection.")
 	quotaStr := ctx.String("fifo")
 	if ctx.IsSet("hard") {
 		quotaStr = ctx.String("hard")
@@ -152,9 +152,9 @@ func mainAdminBucketQuota(ctx *cli.Context) error {
 			qType = madmin.HardQuota
 		}
 		quota, e := humanize.ParseBytes(quotaStr)
-		fatalIf(probe.NewError(e).Trace(quotaStr), "Unable to parse quota")
-		if e = client.SetBucketQuota(globalContext, targetURL, &madmin.BucketQuota{Quota: quota, Type: qType}); e != nil {
-			fatalIf(probe.NewError(e).Trace(args...), "Unable to set bucket quota")
+		FatalIf(probe.NewError(e).Trace(quotaStr), "Unable to parse quota")
+		if e = client.SetBucketQuota(GlobalContext, targetURL, &madmin.BucketQuota{Quota: quota, Type: qType}); e != nil {
+			FatalIf(probe.NewError(e).Trace(args...), "Unable to set bucket quota")
 		}
 		printMsg(quotaMessage{
 			op:        "set",
@@ -164,8 +164,8 @@ func mainAdminBucketQuota(ctx *cli.Context) error {
 			Status:    "success",
 		})
 	} else if ctx.Bool("clear") && len(args) == 1 {
-		if err := client.SetBucketQuota(globalContext, targetURL, &madmin.BucketQuota{}); err != nil {
-			fatalIf(probe.NewError(err).Trace(args...), "Unable to clear bucket quota config")
+		if err := client.SetBucketQuota(GlobalContext, targetURL, &madmin.BucketQuota{}); err != nil {
+			FatalIf(probe.NewError(err).Trace(args...), "Unable to clear bucket quota config")
 		}
 		printMsg(quotaMessage{
 			op:     "unset",
@@ -174,8 +174,8 @@ func mainAdminBucketQuota(ctx *cli.Context) error {
 		})
 
 	} else {
-		qCfg, e := client.GetBucketQuota(globalContext, targetURL)
-		fatalIf(probe.NewError(e).Trace(args...), "Unable to get bucket quota")
+		qCfg, e := client.GetBucketQuota(GlobalContext, targetURL)
+		FatalIf(probe.NewError(e).Trace(args...), "Unable to get bucket quota")
 		printMsg(quotaMessage{
 			op:        "get",
 			Bucket:    targetURL,

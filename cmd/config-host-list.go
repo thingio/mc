@@ -56,7 +56,7 @@ func checkConfigHostListSyntax(ctx *cli.Context) {
 	args := ctx.Args()
 
 	if len(ctx.Args()) > 1 {
-		fatalIf(errInvalidArgument().Trace(args...),
+		FatalIf(errInvalidArgument().Trace(args...),
 			"Incorrect number of arguments to list hosts.")
 	}
 }
@@ -110,7 +110,7 @@ func (d byAlias) Less(i, j int) bool { return d[i].Alias < d[j].Alias }
 // listHosts - list all host URLs or a requested host.
 func listHosts(alias string) {
 	conf, err := loadMcConfig()
-	fatalIf(err.Trace(globalMCConfigVersion), "Unable to load config version `"+globalMCConfigVersion+"`.")
+	FatalIf(err.Trace(globalMCConfigVersion), "Unable to load config version `"+globalMCConfigVersion+"`.")
 
 	// If specific alias is requested, look for it and print.
 	if alias != "" {
@@ -127,7 +127,7 @@ func listHosts(alias string) {
 			})
 			return
 		}
-		fatalIf(errInvalidAliasedURL(alias), "No such alias `"+alias+"` found.")
+		FatalIf(errInvalidAliasedURL(alias), "No such alias `"+alias+"` found.")
 	}
 
 	var hosts []hostMessage

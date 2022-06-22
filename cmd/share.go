@@ -80,7 +80,7 @@ func (s shareMesssage) String() string {
 func (s shareMesssage) JSON() string {
 	s.Status = "success"
 	shareMessageBytes, e := json.MarshalIndent(s, "", " ")
-	fatalIf(probe.NewError(e), "Unable to marshal into JSON.")
+	FatalIf(probe.NewError(e), "Unable to marshal into JSON.")
 
 	// JSON encoding escapes ampersand into its unicode character
 	// which is not usable directly for share and fails with cloud
@@ -116,7 +116,7 @@ func getShareDir() (string, *probe.Error) {
 // Get share dir name or die. (NOTE: This `Die` approach is only OK for mc like tools.).
 func mustGetShareDir() string {
 	shareDir, err := getShareDir()
-	fatalIf(err.Trace(), "Unable to determine share folder.")
+	FatalIf(err.Trace(), "Unable to determine share folder.")
 	return shareDir
 }
 
@@ -176,7 +176,7 @@ func initShareDownloadsFile() *probe.Error {
 func initShareConfig() {
 	// Share directory.
 	if !isShareDirExists() {
-		fatalIf(createShareDir().Trace(mustGetShareDir()),
+		FatalIf(createShareDir().Trace(mustGetShareDir()),
 			"Failed to create share `"+mustGetShareDir()+"` folder.")
 		if !globalQuiet && !globalJSON {
 			console.Infof("Successfully created `%s`.\n", mustGetShareDir())
@@ -185,7 +185,7 @@ func initShareConfig() {
 
 	// Uploads share file.
 	if !isShareUploadsExists() {
-		fatalIf(initShareUploadsFile().Trace(getShareUploadsFile()),
+		FatalIf(initShareUploadsFile().Trace(getShareUploadsFile()),
 			"Failed to initialize share uploads `"+getShareUploadsFile()+"` file.")
 		if !globalQuiet && !globalJSON {
 			console.Infof("Initialized share uploads `%s` file.\n", getShareUploadsFile())
@@ -194,7 +194,7 @@ func initShareConfig() {
 
 	// Downloads share file.
 	if !isShareDownloadsExists() {
-		fatalIf(initShareDownloadsFile().Trace(getShareDownloadsFile()),
+		FatalIf(initShareDownloadsFile().Trace(getShareDownloadsFile()),
 			"Failed to initialize share downloads `"+getShareDownloadsFile()+"` file.")
 		if !globalQuiet && !globalJSON {
 			console.Infof("Initialized share downloads `%s` file.\n", getShareDownloadsFile())

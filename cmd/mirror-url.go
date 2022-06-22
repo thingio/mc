@@ -32,7 +32,7 @@ import (
 //   mirror(d1..., d2) -> []mirror(d1/f, d2/d1/f)
 
 // checkMirrorSyntax(URLs []string)
-func checkMirrorSyntax(ctx context.Context, cliCtx *cli.Context, encKeyDB map[string][]prefixSSEPair) {
+func checkMirrorSyntax(ctx context.Context, cliCtx *cli.Context, encKeyDB map[string][]PrefixSSEPair) {
 	if len(cliCtx.Args()) != 2 {
 		cli.ShowCommandHelpAndExit(cliCtx, "mirror", 1) // last argument is exit code.
 	}
@@ -51,7 +51,7 @@ func checkMirrorSyntax(ctx context.Context, cliCtx *cli.Context, encKeyDB map[st
 	tgtClientURL := newClientURL(tgtURL)
 	if tgtClientURL.Host != "" {
 		if tgtClientURL.Path == string(tgtClientURL.Separator) {
-			fatalIf(errInvalidArgument().Trace(tgtURL),
+			FatalIf(errInvalidArgument().Trace(tgtURL),
 				fmt.Sprintf("Target `%s` does not contain bucket name.", tgtURL))
 		}
 	}
@@ -80,7 +80,7 @@ func checkMirrorSyntax(ctx context.Context, cliCtx *cli.Context, encKeyDB map[st
 
 		if err == nil {
 			if !srcContent.Type.IsDir() {
-				fatalIf(errInvalidArgument().Trace(srcContent.URL.String(), srcContent.Type.String()), fmt.Sprintf("Source `%s` is not a folder. Only folders are supported by mirror command.", srcURL))
+				FatalIf(errInvalidArgument().Trace(srcContent.URL.String(), srcContent.Type.String()), fmt.Sprintf("Source `%s` is not a folder. Only folders are supported by mirror command.", srcURL))
 			}
 		}
 	}
@@ -96,7 +96,7 @@ func matchExcludeOptions(excludeOptions []string, srcSuffix string) bool {
 	return false
 }
 
-func deltaSourceTarget(ctx context.Context, sourceURL, targetURL string, opts mirrorOptions, URLsCh chan<- URLs) {
+func deltaSourceTarget(ctx context.Context, sourceURL, targetURL string, opts MirrorOptions, URLsCh chan<- URLs) {
 	// source and targets are always directories
 	sourceSeparator := string(newClientURL(sourceURL).Separator)
 	if !strings.HasSuffix(sourceURL, sourceSeparator) {
@@ -126,7 +126,7 @@ func deltaSourceTarget(ctx context.Context, sourceURL, targetURL string, opts mi
 	}
 
 	// List both source and target, compare and return values through channel.
-	for diffMsg := range objectDifference(ctx, sourceClnt, targetClnt, sourceURL, targetURL, opts.isMetadata) {
+	for diffMsg := range objectDifference(ctx, sourceClnt, targetClnt, sourceURL, targetURL, opts.IsMetadata) {
 		if diffMsg.Error != nil {
 			// Send all errors through the channel
 			URLsCh <- URLs{Error: diffMsg.Error}
@@ -135,13 +135,13 @@ func deltaSourceTarget(ctx context.Context, sourceURL, targetURL string, opts mi
 
 		srcSuffix := strings.TrimPrefix(diffMsg.FirstURL, sourceURL)
 		//Skip the source object if it matches the Exclude options provided
-		if matchExcludeOptions(opts.excludeOptions, srcSuffix) {
+		if matchExcludeOptions(opts.ExcludeOptions, srcSuffix) {
 			continue
 		}
 
 		tgtSuffix := strings.TrimPrefix(diffMsg.SecondURL, targetURL)
 		//Skip the target object if it matches the Exclude options provided
-		if matchExcludeOptions(opts.excludeOptions, tgtSuffix) {
+		if matchExcludeOptions(opts.ExcludeOptions, tgtSuffix) {
 			continue
 		}
 
@@ -151,7 +151,7 @@ func deltaSourceTarget(ctx context.Context, sourceURL, targetURL string, opts mi
 		case differInType:
 			URLsCh <- URLs{Error: errInvalidTarget(diffMsg.SecondURL)}
 		case differInSize, differInMetadata, differInAASourceMTime:
-			if !opts.isOverwrite && !opts.isFake && !opts.activeActive {
+			if !opts.IsOverwrite && !opts.IsFake && !opts.ActiveActive {
 				// Size or time or etag differs but --overwrite not set.
 				URLsCh <- URLs{Error: errOverWriteNotAllowed(diffMsg.SecondURL)}
 				continue
@@ -181,7 +181,7 @@ func deltaSourceTarget(ctx context.Context, sourceURL, targetURL string, opts mi
 				TargetContent: targetContent,
 			}
 		case differInSecond:
-			if !opts.isRemove && !opts.isFake {
+			if !opts.IsRemove && !opts.IsFake {
 				continue
 			}
 			URLsCh <- URLs{
@@ -196,19 +196,19 @@ func deltaSourceTarget(ctx context.Context, sourceURL, targetURL string, opts mi
 	}
 }
 
-type mirrorOptions struct {
-	isFake, isOverwrite, activeActive bool
-	isWatch, isRemove, isMetadata     bool
-	excludeOptions                    []string
-	encKeyDB                          map[string][]prefixSSEPair
-	md5, disableMultipart             bool
-	olderThan, newerThan              string
-	storageClass                      string
-	userMetadata                      map[string]string
+type MirrorOptions struct {
+	IsFake, IsOverwrite, ActiveActive             bool
+	IsWatch, IsRemove, IsMetadata, IsIgnoreDelete bool
+	ExcludeOptions                                []string
+	EncKeyDB                                      map[string][]PrefixSSEPair
+	Md5, DisableMultipart                         bool
+	OlderThan, NewerThan                          string
+	StorageClass                                  string
+	UserMetadata                                  map[string]string
 }
 
 // Prepares urls that need to be copied or removed based on requested options.
-func prepareMirrorURLs(ctx context.Context, sourceURL string, targetURL string, opts mirrorOptions) <-chan URLs {
+func prepareMirrorURLs(ctx context.Context, sourceURL string, targetURL string, opts MirrorOptions) <-chan URLs {
 	URLsCh := make(chan URLs)
 	go deltaSourceTarget(ctx, sourceURL, targetURL, opts, URLsCh)
 	return URLsCh
